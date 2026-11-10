@@ -1,0 +1,220 @@
+# Compendium of Scraped Scientific Laws
+
+> Source: https://en.wikipedia.org/wiki/List_of_eponymous_laws
+> Automatically harvested by Research Engine.
+
+## Laws and Rules
+- **Acton's dictum**: "Power tends to corrupt, and absolute power corrupts absolutely. Great men are almost always bad men [...]"
+- **Alder's razor**: See Newton's flaming laser sword below.
+- **Allen's rule**: Endotherms from colder climates usually have shorter limbs (or appendages) than the equivalent animals from warmer climates.
+- **Amara's law**: "We tend to overestimate the effect of a technology in the short run and underestimate the effect in the long run." Named after Roy Amara (1925–2007).
+- **Archimedes' lever**: "Give me a lever long enough and a fulcrum on which to place it, and I shall move the world".
+- **Asimov's Three Laws of Robotics formulated by Isaac Asimov**: A robot may not injure a human being or, through inaction, allow a human being to come to harm.
+A robot must obey the orders given it by human beings, except where such orders would conflict with the First Law.
+A robot must protect its own existence as long as such protection does not conflict with the First or Second Laws. (Asimov later added what became known as the "Zeroth Law", to precede the initial three: A robot may not harm humanity, or, by inaction, allow humanity to come to harm.)
+- **The Asimov corollary to Parkinson's law**: In ten hours a day you have time to fall twice as far behind your commitments as in five hours a day.
+- **Atwood's law**: Any software that can be written in JavaScript will eventually be written in JavaScript.
+- **Avogadro's law, one of the gas laws, states that**: "equal volumes of all gases, at the same temperature and pressure, have the same number of molecules."
+- **Beer–Lambert law**: in optics, the empirical relationship of the absorption of light to the properties of the material through which the light is traveling. Independently discovered (in various forms) by Pierre Bouguer in 1729, Johann Heinrich Lambert in 1760 and August Beer in 1852.
+- **Benford's law**: In many collections of data, a given data point has roughly a 30% chance of starting with the digit 1.
+- **Benford's law of controversy**: Passion is inversely proportional to the amount of real information available.
+- **Bergmann's rule**: within a broadly distributed taxonomic clade, populations and species of larger size are found in colder environments, and species of smaller size are found in warmer regions.
+- **Betteridge's law of headlines**: "any headline which ends in a question mark can be answered by the word 'no'".
+- **Betz's law**: No wind turbine can capture more than 16/27 (59.3%) of the kinetic energy in wind, independent of the design of the turbine, in open flow.
+- **Bloch's law**: in human vision, the product of contrast and luminosity is a constant for small targets below the resolution limit.
+- **Brandolini's law**: The amount of energy needed to refute bullshit is an order of magnitude bigger than to produce it. Named after Italian programmer Alberto Brandolini.
+- **Briffault's law**: "The female, not the male, determines all the conditions of the animal family. Where the female can derive no benefit from association with the male, no such association takes place." Named after Robert Briffault.
+- **Brooks's law**: "Adding manpower to a late software project makes it later." Named after Fred Brooks, author of the well known book on project management The Mythical Man-Month.
+- **Campbell's law**: "The more any quantitative social indicator is used for social decision making, the more subject it will be to corruption pressures and the more apt it will be to distort and corrupt the social processes it is intended to monitor." Named after Donald T. Campbell (1916–1996).
+- **Chargaff's rules state that DNA from any cell of all organisms should have a 1**: 1 ratio (base Pair Rule) of pyrimidine and purine bases and, more specifically, that the amount of guanine is equal to cytosine and the amount of adenine is equal to thymine. Discovered by Austrian chemist Erwin Chargaff.
+- **Cheops law**: Nothing ever gets built on schedule or within budget.
+- **Claasen's law, or the logarithmic law of usefulness**: usefulness = log(technology).
+- **First law**: When a distinguished but elderly scientist states that something is possible, he is almost certainly right. When he states that something is impossible, he is very probably wrong.
+- **Second law**: The only way of discovering the limits of the possible is to venture a little way past them into the impossible.
+- **Third law**: Any sufficiently advanced technology is indistinguishable from magic.
+- **Collingridge's dilemma**: Technology can only be regulated well if its impacts are known, but once a technology is known it is often too entrenched to be regulated. Named after David Collingridge.
+- **Conquest's three laws of politics**: First law: Everyone is conservative about what he knows best
+Second law: Any organization not explicitly right-wing sooner or later becomes left-wing.
+Third law: The simplest way to explain the behavior of any bureaucratic organization is to assume that it is controlled by a cabal of its enemies.
+- **First law**: Everyone is conservative about what he knows best
+- **Second law**: Any organization not explicitly right-wing sooner or later becomes left-wing.
+- **Third law**: The simplest way to explain the behavior of any bureaucratic organization is to assume that it is controlled by a cabal of its enemies.
+- **Conway's law**: Any piece of software reflects the organizational structure that produced it. Named after Melvin Conway.
+- **Cooper's law**: The number of radio frequency conversations which can be concurrently conducted in a given area doubles every 30 months.
+- **Cope's rule**: Population lineages tend to increase in body size over evolutionary time.
+- **Cramer's rule**: In linear algebra, an explicit formula for the solution of a system of linear equations with as many equations as unknowns, valid whenever the system has a unique solution. Named after Swiss mathematician Gabriel Cramer.
+- **Crane's law**: there is no such thing as a free lunch.
+- **Cunningham's law**: The best way to get the right answer on the Internet is not to ask a question, but to post the wrong answer. Attributed to Ward Cunningham by Steven McGeady.
+- **Curie's law**: In a paramagnetic material the magnetization of the material is (approximately) directly proportional to an applied magnetic field. Named after Pierre Curie.
+- **Curie-Weiss law**: describes the magnetic susceptibility χ of a ferromagnet in the paramagnetic region above the Curie point. Named after Pierre Curie and Pierre-Ernest Weiss.
+- **D'Alembert's principle**: The sum of the differences between the forces acting on a system of mass particles and the time derivatives of the momenta of the system itself along any virtual displacement consistent with the constraints of the system, is zero. Named after Jean le Rond d'Alembert.
+- **Dermott's law**: The sidereal period of major satellites tends to follow a geometric series. Named after Stanley Dermott.
+- **Dilbert principle**: "the most ineffective workers are systematically moved to the place where they can do the least damage: management." Coined by Scott Adams.
+- **Doctorow's law**: "Anytime someone puts a lock on something you own, against your wishes, and doesn't give you the key, they're not doing it for your benefit."
+- **Dollo's law**: "An organism is unable to return, even partially, to a previous stage already realized in the ranks of its ancestors." Simply put this law states that evolution is not reversible; the "law" is regarded as a generalisation as exceptions may exist.
+- **Duverger's law**: Winner-take-all (or first-past-the-post) electoral systems tend to create a two-party system, while proportional representation tends to create a multiple-party system. Named for Maurice Duverger.
+- **Emmert's law, in optics**: objects that generate retinal images of the same size will look different in physical size (linear size) if they appear to be located at different distances. Named for Emil Emmert.
+- **Engelbart's law**: "The intrinsic rate of human performance is exponential."
+- **Euler's laws of motion**: extends Newton's laws of motion for point particle to rigid body motion.
+- **Faraday's law of induction**: a magnetic field changing in time creates a proportional electromotive force. Named for Michael Faraday, based on his work in 1831.
+- **Faraday's law of electrolysis**: the mass of a substance produced at an electrode during electrolysis is proportional to the number of moles of electrons transferred at that electrode; again named for Michael Faraday.
+- **Faxén's law**: In fluid dynamics, Faxén's laws relate a sphere's velocity and angular velocity to the forces, torque, stresslet and flow it experiences under low Reynolds number (creeping flow) conditions.
+- **Finagle's law**: "Anything that can go wrong, will—at the worst possible moment." or "The perversity of the Universe tends towards a maximum."
+- **Frege's principle**: The meaning of a complex expression is determined by the meanings of its constituent expressions and the rules used to combine them.
+- **Gall's law**: "A complex system that works is invariably found to have evolved from a simple system that worked."
+- **Gause's law, in ecology, the competitive exclusion principle**: "complete competitors cannot coexist."
+- **Gay-Lussac's law**: "The pressure of a fixed mass and fixed volume of a gas is directly proportional to the gas's temperature."
+- **Gell-Mann amnesia effect**: Believing newspaper articles outside one's area of expertise, even after acknowledging that neighboring articles in one's area of expertise are completely wrong.
+- **Gérson's law**: "An advantage should be taken in every situation, regardless of ethics."
+- **Gibrat's law**: "The size of a firm and its growth rate are independent."
+- **Gibson's law**: "For every PhD there is an equal and opposite PhD."
+- **Gloger's rule, an ecogeographical rule which states**: within a species of endotherms, more heavily pigmented forms tend to be found in more humid environments. It was coined by Constantin Wilhelm Lambert Gloger.
+- **Godwin's law, an adage in Internet culture**: "As an online discussion grows longer, the probability of a comparison involving Nazis or Hitler approaches one." Coined by Mike Godwin in 1990.
+- **Gompertz–Makeham law of mortality**: the death rate is the sum of an age-independent component and an age-dependent component.
+- **Goodhart's law**: When a measure becomes a target, it ceases to be a good measure.
+- **Graham's Hierarchy of Disagreement**: a taxonomy of argument strategy, from refutations to base insults.
+- **Graham's law, a gas law in physics**: the average kinetic energy of the molecules of two samples of different gases at the same temperature is identical. It is named for Thomas Graham (1805–1869), who formulated it.
+- **Grassmann's law**: A dissimilatory phonological process in Ancient Greek and Sanskrit which states that if an aspirated consonant is followed by another aspirated consonant in the next syllable, the first one loses the aspiration. Named after its discoverer Hermann Grassmann.
+- **Grassmann's law (optics), an empirical result about human color perception**: that chromatic sensation can be described in terms of an effective stimulus consisting of linear combinations of different light colors.
+- **Greenspun's tenth rule**: Any sufficiently complicated C or Fortran program contains an ad hoc, informally specified, bug-ridden, slow implementation of half of Common Lisp; coined by Philip Greenspun.
+- **Grosch's law**: the economic value of computation increases with the square root of the increase in speed; that is, to do a calculation 10 times as cheaply you must do it 100 times as fast. Stated by Herb Grosch in 1965.
+- **Grotthuss–Draper law**: only that light which is absorbed by a system can bring about a photochemical change. Named for Theodor Grotthuss and John William Draper.
+- **Gustafson's law (also known as Gustafson–Barsis's law) in computer engineering**: any sufficiently large problem can be efficiently parallelized. Coined by John Gustafson in 1988.
+- **Hack's law**: a hydrological law relating longest stream length in a basin with the area of the basin. Named after John Tilton Hack.
+- **Hagen–Poiseuille law**: a physical law that gives the pressure drop in an incompressible and Newtonian fluid in laminar flow flowing through a long cylindrical pipe of constant cross section. Named after Gotthilf Hagen and Jean Poiseuille.
+- **Hamilton's principle**: the dynamics of a physical system is determined by a variational problem for a functional based on a single function, the Lagrangian, which contains all physical information concerning the system and the forces acting on it. Named after William Rowan Hamilton.
+- **Hebb's law**: "Neurons that fire together wire together."
+- **Heisenberg's uncertainty principle**: one cannot measure values (with arbitrary precision) of certain conjugate quantities, which are pairs of observables of a single elementary particle. The most familiar of these pairs is position and momentum.
+- **Henry's law**: The mass of a gas that dissolves in a definite volume of liquid is directly proportional to the pressure of the gas provided the gas does not react with the solvent.
+- **Hess's law, in physical chemistry**: the total enthalpy change during the complete course of a reaction is the same whether the reaction is made in one step or in several steps.
+- **Hofstadter's law**: "It always takes longer than you expect, even when you take into account Hofstadter's law" (Douglas Hofstadter, Gödel, Escher, Bach, 1979).
+- **Hooke's law**: The tension on a spring or other elastic object is proportional to the displacement from the equilibrium. Frequently cited in Latin as "Ut tensio sic vis." Named after Robert Hooke (1635–1703).
+- **Hotelling's law in economics**: Under some conditions, it is rational for competitors to make their products as nearly identical as possible.
+- **Hubble's law**: Galaxies recede from an observer at a rate proportional to their distance to that observer. Formulated by Edwin Hubble in 1929.
+- **Hume's law, in meta-ethics**: normative statements cannot be deduced exclusively from descriptive statements.
+- **Humphrey's law**: conscious attention to a task normally performed automatically can impair its performance. Described by psychologist George Humphrey in 1923.
+- **Hutber's law**: "Improvement means deterioration." Coined by financial journalist Patrick Hutber.
+- **Hyrum's Law**: "With a sufficient number of users of a [computer software] API, it does not matter what you promise in the contract: all observable behaviors of your system will be depended on by somebody."
+- **Joy's law in management**: the principle that "no matter who you are, most of the smartest people work for someone else", attributed to Sun Microsystems co-founder Bill Joy.
+- **Kerckhoffs's principle of secure cryptography**: A cryptosystem should be secure even if everything about the system, except the key, is public.
+- **Kleiber's law**: for the vast majority of animals, an animal's metabolic rate scales to the 3⁄4 power of the animal's mass. Named after Max Kleiber.
+- **Kluge's law**: a sound law that purports to explain the origin of the Proto-Germanic long consonants. Named after Friedrich Kluge.
+- **Koomey's law**: the energy of computation is halved every year and a half.
+- **Kopp's law**: The molecular heat capacity of a solid compound is the sum of the atomic heat capacities of the elements composing it. Named for Hermann Franz Moritz Kopp.
+- **Korte's law**: The greater the length of a path between two successively presented stimuli, the greater the stimulus onset asynchrony must be for an observer to perceive the two stimuli as a single moving object.
+- **Kranzberg's laws of technology**: The first law states that technology is neither good nor bad; nor is it neutral.
+- **Kryder's law**: on growth of density of magnetic disk storage, compared to Moore's law.
+- **Lamarck's theory of evolution has two laws**: The first can be paraphrased as "use it or lose it". The second is the more famous law of soft inheritance.
+- **Landauer's principle**: there is a minimum possible amount of energy required to change one bit of information, known as the Landauer limit.
+- **Leavitt's law**: In astronomy, a period-luminosity relation linking the luminosity of pulsating variable stars with their pulsation period. Named for American astronomer Henrietta Swan Leavitt.
+- **Leibniz's law is a principle in metaphysics also known as the Identity of Indiscernibles. It states**: "If two objects have all their properties in common, then they are one and the same object."
+- **Lenz's law**: An induced current is always in such a direction as to oppose the motion or change causing it. Named for Russian physicist Emil Lenz.
+- **Lem's Law**: "No one reads; if someone does read, he doesn't understand, if he understands, he immediately forgets."
+- **Lewis's law**: The comments on any article about feminism justify feminism. Named for English journalist Helen Lewis.
+- **Lightwood's law**: In medicine, states that bacterial infections will tend to localise while viral infections will tend to spread.
+- **Liebig's law of the minimum**: The growth or distribution of a plant is dependent on the one environmental factor most critically in demand.
+- **Lindy's Law**: the life expectancy of something is proportional to its current age.  Something that has been around for a long time is likely to also remain around for a long time.
+- **Linus's law**: "Given enough eyeballs, all bugs are shallow." Named for Linus Torvalds.
+- **Little's law, in queuing theory**: "The average number of customers in a stable system (over some time interval) is equal to their average arrival rate, multiplied by their average time in the system." The law was named for John Little from results of experiments in 1961.
+- **Littlewood's law**: individuals can expect miracles to happen to them, at the rate of about one per month. Coined by J. E. Littlewood, (1885–1977).
+- **Llinás's law**: "A neuron of a given kind cannot be functionally replaced by one of another type even if their synaptic connectivity and the type of neurotransmitter outputs are identical." Named for neuroscientist Rodolfo Llinás.
+- **Lotka's law, in infometrics**: the number of authors publishing a certain number of articles is a fixed ratio to the number of authors publishing a single article. As the number of articles published increases, authors producing that many publications become less frequent. For example, there may be 1⁄4 as many authors publishing two articles within a specified time period as there are single-publication authors, 1⁄9 as many publishing three articles, 1⁄16 as many publishing four articles, etc. Though the law itself covers many disciplines, the actual ratios involved are very discipline-specific.
+- **Lucas critique**: "argues that it is naïve to try to predict the effects of a change in economic policy entirely on the basis of relationships observed in historical data, especially highly aggregated historical data."
+- **Madelung rule**: the order in which atomic orbitals are filled according to the aufbau principle. Named for Erwin Madelung. Also known as the Janet rule or the Klechkowski rule (after Charles Janet or Vsevolod Klechkovsky).
+- **Maes–Garreau law**: most favorable predictions about future technology will fall around latest possible date they can come true and still remain in the lifetime of the person making the prediction.
+- **Metcalfe's law, in communications and network theory**: the value of a system grows as approximately the square of the number of users of the system. Framed by Robert Metcalfe in the context of Ethernet.
+- **Miller's law, in communication**: "To understand what another person is saying, you must assume that it is true and try to imagine what it could be true of." Named after George Armitage Miller.
+- **Monro-Kellie doctrine**: The pressure–volume relationship between intracranial contents and cerebral perfusion pressure (CPP) states that the cranial compartment is inelastic and that the volume inside the cranium is fixed. The cranium and its constituents (blood, CSF, and brain tissue) create a state of volume equilibrium, such that any increase in volume of one of the cranial constituents must be compensated by a decrease in volume of another. *This concept only applies to adults, as the presence of fontanelles and open suture lines in infants that have not yet fused means there is potential for a change in size and intracranial volume.
+- **Mooers's law**: "An information retrieval system will tend not to be used whenever it is more painful and troublesome for a customer to have information than for him not to have it." An empirical observation made by American computer scientist Calvin Mooers in 1959.
+- **Muphry's law**: "If you write anything criticizing editing or proofreading, there will be a fault of some kind in what you have written." The name is a deliberate misspelling of "Murphy's law".
+- **Murphy's law**: "Anything that can go wrong will go wrong." Ascribed to Edward A. Murphy, Jr. See also Sod's law.
+- **Navier–Stokes equations**: In physics, these equations describe the motion of viscous fluid substances. Named after Claude-Louis Navier and George Gabriel Stokes.
+- **Nernst equation**: A chemical and thermodynamic relationship that permits the calculation of the reduction potential of a reaction.
+- **Neuhaus's law**: Where orthodoxy is optional, orthodoxy will sooner or later be proscribed. This "law" had been expressed earlier. For example, Charles Porterfield Krauth wrote in his The Conservative Reformation: "Truth started with tolerating; it comes to be merely tolerated, and that only for a time. Error claims a preference for its judgments on all disputed points."
+- **Newton's flaming laser sword, also known as Alder's razor**: What cannot be settled by experiment is not worth debating.
+- **Newton's law of cooling**: The rate of cooling (or heating) of a body due to convection is proportional to the difference between the body temperature and the ambient temperature.
+- **First law**: A body remains at rest, or keeps moving in a straight line (at a constant velocity), unless acted upon by a net outside force.
+- **Second law**: The acceleration of an object of constant mass is proportional to the net force acting upon it.
+- **Third law**: Whenever one body exerts a force upon a second body, the second body exerts an equal and opposite force upon the first body.
+- **Newton's law of universal gravitation**: Every particle in the universe attracts every other particle with a force that is proportional to the product of their masses and inversely proportional to the square of the distance between them.
+- **Nielsen's law**: A high-end user's internet connection speed grows by 50% per year.
+- **Niven's laws**: several aphorisms, including "If the universe of discourse permits the possibility of time travel and of changing the past, then no time machine will be invented in that universe."
+- **Noether's theorem**: Every continuous symmetry in a physical system has a corresponding conservation law.
+- **Occam's razor**: explanations should never multiply causes without necessity. ("Entia non sunt multiplicanda praeter necessitatem.") When two or more explanations are offered for a phenomenon, the simplest full explanation is preferable. Named after William of Ockham (c. 1285–1349).
+- **Oddo–Harkins rule**: elements with an even atomic number are more common than those with odd atomic number. Named after Giuseppe Oddo and William Draper Harkins.
+- **Ohm's law, in physics**: the ratio of the potential difference (or voltage drop) between the ends of a conductor (and resistor) to the current flowing through it is a constant. Discovered by and named after Georg Simon Ohm (1789–1854).
+- **Okun's law, in economics**: when unemployment increases by 1%, the annual GDP decreases by 2%.
+- **First rule**: "Whenever a spontaneous process is too slow or too inefficient a protein will evolve to speed it up or make it more efficient."
+- **Second rule**: "Evolution is cleverer than you are."
+- **Ostrom's law, in economics and property law**: resource arrangements in practice can be represented in theory, such as arrangements of the commons or shared property.
+- **O'Sullivan's first law, in politics**: "All organizations that are not actually right-wing will over time become left-wing."
+- **Papert's principle**: "Some of the most crucial steps in mental growth are based not simply on acquiring new skills, but on acquiring new administrative ways to use what one already knows."
+- **Pareto principle**: for many phenomena 80% of consequences stem from 20% of the causes. Named after Italian economist Vilfredo Pareto, but framed by management thinker Joseph M. Juran.
+- **Parkinson's law**: "Work expands to fill the time available for its completion." Corollary: "Expenditure rises to meet income." Coined by C. Northcote Parkinson (1909–1993).
+- **Parkinson's law of triviality**: "The time spent on any agenda item will be in inverse proportion to the sum of money involved." Also due to C. Northcote Parkinson.
+- **Peltzman effect**: Safety measures are offset by increased risk-taking.
+- **Peter principle**: "In a hierarchy, every employee tends to rise to his level of incompetence." Coined by Dr. Laurence J. Peter (1919–1990) in his book The Peter Principle. In his follow-up book, The Peter Prescription, he offered possible solutions to the problems his principle could cause.
+- **Poe's law (fundamentalism)**: "Without a winking smiley or other blatant display of humor, it is utterly impossible to parody a Creationist in such a way that someone won't mistake for the genuine article." Although it originally referred to creationism, the scope later widened to any form of extremism or fundamentalism.
+- **Poisson's law of large numbers**: For independent random variables with a common distribution, the average value for a sample tends to the mean as sample size increases. Named after Siméon Denis Poisson (1781–1840) and derived from Recherches sur la probabilité des jugements en matière criminelle et en matière civile (1837: Research on the Probability of Criminal and Civil Verdicts).
+- **Postel's law**: Be conservative in what you do; be liberal in what you accept from others. Derived from RFC 761 (Transmission Control Protocol, 1980) in which Jon Postel summarized earlier communications of desired interoperability criteria for the Internet Protocol (cf. IEN 111)
+- **Pournelle's iron law of bureaucracy**: "In any bureaucracy, the people devoted to the benefit of the bureaucracy itself always get in control and those dedicated to the goals the bureaucracy is supposed to accomplish have less and less influence, and sometimes are eliminated entirely."
+- **Premack's principle**: More probable behaviors will reinforce less probable behaviors. Named for David Premack (1925–2015)
+- **Putt's law**: Technology is dominated by two types of people: those who understand what they do not manage and those who manage what they do not understand.
+- **Putt's corollary**: Every technical hierarchy, in time, develops a competence inversion.
+- **Pythagorean theorem**: fundamental relation in Euclidean geometry among the three sides of a right triangle, that the square of the hypotenuse is equal to the sum of the squares of the other two sides.
+- **Raoult's law, in chemistry**: that the vapor pressure of mixed liquids is dependent on the vapor pressures of the individual liquids and the molar fraction of each present in solution.
+- **Rayleigh–Jeans law**: attempts to describe the spectral radiance of electromagnetic radiation at all wavelengths from a black body at a given temperature through classical arguments. Named after John William Strutt (Lord Rayleigh) and James Jeans.
+- **Reed's law**: the utility of large networks, particularly social networks, can scale exponentially with the size of the network. Asserted by David P. Reed.
+- **Reilly's law of retail gravitation**: People generally patronize the largest mall in the area.
+- **Rent's rule**: In computing logic, the relationship between the number of external signal connections to a logic block (i.e., the number of "pins") with the number of logic gates in the logic block. Named for IBM employee E. F. Rent.
+- **Ribot's law**: In amnesia, more recent memories are most affected.
+- **Ricco's law**: In human vision, the product of contrast and area is a constant for small targets below the resolution limit.
+- **Roemer's law**: A hospital bed built is a bed filled.
+- **Rosenthal effect, also known as the Pygmalion effect**: Higher expectations lead to an increase in performance, or low expectations lead to a decrease in performance. Named after Robert Rosenthal.
+- **Rothbard's law**: Everyone specializes in their own area of weakness.
+- **Russell's teapot**: an analogy showing that the burden of proof of an empirically unfalsifiable claim lies upon the person making the claim, rather than it being accepted unless disproved. The assertion that an undetectable teapot orbits the Sun somewhere between the Earth and Mars should not be accepted, although not proven wrong.
+- **Sagan standard**: Named for scientist Carl Sagan, who said that Extraordinary claims require extraordinary evidence.
+- **Sahm rule**: Named for economist Claudia Sahm, the Sahm rule helps determine when an economy has entered the start of a recession, when the three-month moving average of the national unemployment rate (U3) rises by 0.50 percentage points or more relative to its low during the previous 12 months.
+- **Saint-Venant's principle states**: "the difference between the effects of two different but statically equivalent loads becomes very small at sufficiently large distances from load." Named after Adhémar Jean Claude Barré de Saint-Venant.
+- **Sapir–Whorf hypothesis**: the structure and scope of the language that people use influences people's worldview and cognition.
+- **Sarnoff's law**: The value of a broadcast network is proportional to the number of viewers.
+- **Say's law, attributed to economist Jean-Baptiste Say by economist John Maynard Keynes**: "supply creates its own demand", i.e., if businesses produce more output in a free market economy, the wages and other payment for productive inputs will provide sufficient demand so that there is no general glut.
+- **Sayre's law**: "In any dispute the intensity of feeling is inversely proportional to the value of the stakes at issue." By way of corollary, the law adds: "That is why academic politics are so bitter."  Often attributed to Henry Kissinger.
+- **Schneier's law**: "Anyone can create a cryptographic algorithm that he himself can't break. It's not even hard. What is hard is creating an algorithm that no one else can break".
+- **Segal's law**: "A man with a watch knows what time it is. A man with two watches is never sure."
+- **Shermer's last law**: "Any sufficiently advanced extraterrestrial intelligence is indistinguishable from God". This is a corollary to Clarke's third law.
+- **Shirky principle**: "Institutions will try to preserve the problem to which they are the solution."
+- **Sowa's law of standards**: "Whenever a major organization develops a new system as an official standard for X, the primary result is the widespread adoption of some simpler system as a de facto standard for X."
+- **Spearman's hypothesis**: The magnitudes of the black–white differences on tests of cognitive ability positively correlate with the tests' g-loading.
+- **Stang's law, in Proto-Indo-European phonology**: when a word ends with a vowel followed by a laryngeal or a semivowel *y or *w followed by a nasal, the laryngeal or semivowel is dropped, with compensatory lengthening of a preceding vowel. Named after Norwegian linguist Christian Stang.
+- **Stark–Einstein law**: every photon that is absorbed will cause a (primary) chemical or physical reaction. Named after Johannes Stark and Albert Einstein.
+- **Stefan–Boltzmann law**: The total energy radiated per unit surface area of a black body in unit time is directly proportional to the fourth power of the black body's thermodynamic temperature. Named for Jožef Stefan (1835–1893) and Ludwig Boltzmann.
+- **Stein's law**: If something cannot go on forever, it will stop. If a trend cannot go on forever, there is no need for action or a program to make it stop, much less to make it stop immediately; it will stop of its own accord.
+- **Stigler's law of eponymy**: No scientific discovery is named after its original discoverer. Named by statistician Stephen Stigler who attributes it to sociologist Robert K. Merton, making the law self-referential.
+- **Streisand effect**: whereby an attempt to hide, remove, or censor a piece of information has the unintended consequence of publicizing the information more widely.
+- **Sturgeon's law**: "Ninety percent of everything is crud." Derived from a quote by science fiction author Theodore Sturgeon (1918–1985).
+- **Sutton's law**: "Go where the money is." Often cited in medical schools to teach new doctors to spend resources where they are most likely to pay off. The law is named after bank robber Willie Sutton, who when asked why he robbed banks, is claimed to have answered "Because that's where the money is."
+- **Swanson's law**: solar cell prices fall 20% for every doubling of solar cell industry manufacturing capacity. The law is named after SunPower Corporation founder Richard Swanson.
+- **Szemerényi's law, in Proto-Indo-European phonology**: word-final clusters of vowels (V), resonants (R) and either *s or *h2 are simplified by dropping the word-final fricative (*h2 was phonetically itself probably a back fricative), with compensatory lengthening of the preceding vowel. Named for Hungarian linguist Oswald Szemerényi.
+- **Taylor's law**: a power law in ecology showing the relationship between the variance and mean of species population density. Named for Lionel Roy Taylor.
+- **Teeter's law**: "The language of the family you know best always turns out to be the most archaic." A wry observation about the biases of historical linguists, explaining how different investigators can arrive at radically divergent conceptions of the proto-language of a family. Named after the American linguist Karl V. Teeter.
+- **Thirlwall's law**: under certain conditions, the long run growth of a country can be approximated by the ratio of the growth of exports to the income elasticity of demand for imports.
+- **Titius–Bode law**: "a hypothesis that the bodies in some orbital systems, including the Sun's, orbit at semi-major axes in a function of planetary sequence". Named for Johann Daniel Titius and Johann Elert Bode.
+- **Tobler's first law of geography**: "Everything is related to everything else, but near things are more related than distant things." Coined by Waldo R. Tobler (b. 1930).
+- **Twyman's law**: "Any figure that looks interesting or different is usually wrong", following the principle that "the more unusual or interesting the data, the more likely they are to have been the result of an error of one kind or another". A whimsical version of the Sagan standard.
+- **Van Loon's law**: "The amount of mechanical development will always be in inverse ratio to the number of slaves that happen to be at a country's disposal." Named for Hendrik Willem van Loon.
+- **Verdoorn's law, in economics**: faster growth in output increases productivity due to increasing returns. Named after Dutch economist Petrus Johannes Verdoorn.
+- **Walras's law**: budget constraints imply that the values of excess market demands must sum to zero.
+- **Wiio's laws**: The fundamental Wiio's law states that "Communication usually fails, except by accident".
+- **Wike's law of low odd primes**: "If the number of experimental treatments is a low odd prime number, then the experimental design is unbalanced and partially confounded."
+- **Winter's law**: A sound law operating on Balto-Slavic short vowels. Named after Werner Winter
+- **Wirth's law**: Software gets slower more quickly than hardware gets faster.
+- **Wolff's law**: Bone adapts to pressure, or a lack of it.
+- **Yao's principle, in computational complexity theory**: the expected cost of any randomized algorithm for solving a given problem, on the worst case input for that algorithm, can be no better than the expected cost, for a worst-case random probability distribution on the inputs, of the deterministic algorithm that performs best against that distribution. Named for Andrew Yao.
+- **Zawinski's law**: Every program attempts to expand until it can read mail. Those programs which cannot expand are replaced by ones which can.
+- **Zeeman effect**: Splitting of a spectral line into several components in the presence of a static magnetic field.
+- **^ Bloch, Arthur (1977). Murphy's Law and Other Reasons Why Things Go Wrong. Los Angeles**: Price/Stern/Sloan. p. 69. ISBN 0843104287.
+- **^ Pagel, M. (2004). "Limpets break Dollo's Law". Trends in Ecology & Evolution. 19 (6)**: 278–280. Bibcode:2004TEcoE..19..278P. doi:10.1016/j.tree.2004.03.020. PMID 16701270.
+- **^ Shermer, Michael (2002-01-01). "Shermer's Last Law". Scientific American. 286 (1)**: 33. Bibcode:2002SciAm.286a..33S. doi:10.1038/scientificamerican0102-33. PMID 11799615.
+- **^ Wike, Edward L. (1 September 2016). "Water Beds and Sexual Satisfaction**: Wike's Law of Low Odd Primes (WLLOP)". Psychological Reports. 33 (1): 192–194. doi:10.2466/pr0.1973.33.1.192. S2CID 145176823.
+- **^ Anahad O'Connor (October 18, 2010). "The Claim**: After Being Broken, Bones Can Become Even Stronger". New York Times.

@@ -1,0 +1,223 @@
+{% extends 'science_engine/base.html' %}
+{% load science_filters %}
+
+{% block content %}
+<div class="flex h-full w-full bg-[#fdfaf6] text-slate-900 overflow-hidden font-serif">
+    
+    <!-- Left Sidebar: Index & Progress -->
+    <div class="w-64 bg-[#f4f1ea] border-r border-[#e0dad0] flex flex-col shrink-0 font-sans shadow-inner">
+        <div class="p-6 border-b border-[#e0dad0] bg-[#ebe7df]">
+            <h2 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{{ topic.course.subject.name }}</h2>
+            <h3 class="text-sm font-bold text-slate-800 leading-tight">{{ topic.course.name }}</h3>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-2">
+            <div class="text-[9px] font-bold text-slate-400 uppercase mb-3">Contents</div>
+            {% for sibling in topic.course.topics.all %}
+            <a href="{% url 'topic_detail' sibling.id %}" class="block px-3 py-2.5 rounded text-[13px] leading-tight transition-all {% if topic.id == sibling.id %}bg-white text-indigo-700 shadow-sm font-bold border-l-4 border-indigo-600{% else %}text-slate-600 hover:bg-[#ebe7df] hover:text-slate-900{% endif %}">
+                <span class="opacity-40 mr-1 text-[10px]">{{ forloop.counter }}.</span> {{ sibling.name }}
+            </a>
+            {% endfor %}
+        </div>
+        
+        <!-- Action Area (Simplified) -->
+        <div class="p-4 border-t border-[#e0dad0] bg-[#ebe7df]">
+             <div class="text-[10px] text-slate-400 text-center uppercase tracking-widest font-bold">Scientific Archive v1.0</div>
+        </div>
+    </div>
+
+    <!-- Main Manuscript -->
+    <div class="flex-1 overflow-y-auto relative" id="manuscript-container">
+        
+        <!-- Manuscript Body -->
+        <article class="max-w-3xl mx-auto py-20 px-12 bg-white shadow-lg my-12 min-h-[90%] border border-[#e0dad0]">
+            
+            <!-- Breadcrumbs -->
+            <nav class="mb-12 text-[10px] font-sans font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">
+                <a href="{% url 'knowledge_base' %}" class="hover:text-indigo-600">LIB</a>
+                <span class="mx-2 opacity-30">/</span>
+                <a href="{% url 'subject_detail' topic.course.subject.id %}" class="hover:text-indigo-600">{{ topic.course.subject.name }}</a>
+                <span class="mx-2 opacity-30">/</span>
+                <span class="text-slate-600">{{ topic.course.name }}</span>
+            </nav>
+
+            <!-- Chapter Header -->
+            <header class="mb-16">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="text-[12px] font-sans font-bold text-indigo-600 uppercase tracking-[0.2em]">Chapter {{ topic.id }}</div>
+                    {% if topic.theories.all %}
+                    <div class="flex gap-2">
+                        {% for theory in topic.theories.all|slice:":1" %}
+                        <a href="{% url 'theory_detail' theory.name %}" class="px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-[9px] font-bold text-indigo-600 uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all">
+                            Connected Research &rarr;
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <h1 class="text-5xl font-bold text-slate-900 leading-[1.1] mb-8 tracking-tight">{{ topic.name }}</h1>
+                <div class="w-24 h-1 bg-indigo-600 mb-12"></div>
+
+                <!-- Proof of Concept (POC) Physics Schematic or Primary Illustration -->
+                {% if is_spaceflight %}
+                <div class="my-10">
+                    {% include 'science_engine/poc_diagrams.html' %}
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            if (typeof switchPocTopic === 'function') {
+                                switchPocTopic({{ topic.id }});
+                            }
+                        });
+                    </script>
+                </div>
+                {% elif topic.image_url %}
+                <figure class="my-12 p-4 bg-slate-50 border border-slate-200 rounded shadow-sm">
+                    <img src="{{ topic.image_url }}" alt="{{ topic.name }}" class="w-full max-h-[400px] object-contain rounded-sm mb-4">
+                    <figcaption class="text-center text-[11px] font-sans font-bold text-slate-400 uppercase tracking-widest italic">
+                        Illustration {{ topic.id }}.1: Visual mapping of {{ topic.name }}
+                    </figcaption>
+                </figure>
+                {% endif %}
+            </header>
+
+            <!-- Main Text -->
+            <!-- Main Text -->
+            <div class="prose prose-slate prose-lg max-w-none text-slate-800 leading-[1.8] text-[17px] book-content font-serif">
+                {{ topic.content|render_markdown }}
+                
+                {% if not topic.content %}
+                    <p class="text-slate-400 italic">This chapter of the manuscript is currently being compiled from the source nodes...</p>
+                {% endif %}
+            </div>
+
+            <!-- Equations (As boxed figures) -->
+            {% if topic.equations.all %}
+            <div class="my-20 p-8 bg-[#fdfaf6] border-2 border-[#e0dad0] rounded shadow-inner font-sans">
+                <h3 class="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-6 text-center">Formulation Figure {{ topic.id }}.A</h3>
+                <div class="space-y-12">
+                    {% for eq in topic.equations.all %}
+                    <div class="text-center group">
+                        <div class="text-2xl text-indigo-900 mb-4 overflow-x-auto">$${{ eq.formula }}$$</div>
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">{{ eq.name }}</div>
+                        <p class="text-[13px] text-slate-600 max-w-md mx-auto">{{ eq.explanation }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 4PT Simulation Perspective / Synthesis Layer -->
+            {% if topic.simulation_logic %}
+            <div class="my-16 p-6 rounded-xl bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 border border-indigo-500/30 text-white font-sans shadow-xl relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-36 h-36 bg-purple-500/10 rounded-full blur-2xl"></div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 font-mono text-xs font-bold border border-indigo-400/30">4D</span>
+                    <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-indigo-300">4PT Synthesis Layer &bull; Simulation Perspective</span>
+                    <span class="ml-auto px-2 py-0.5 rounded bg-indigo-500/20 text-[10px] font-mono text-indigo-300 border border-indigo-400/20">Axiomatic Bridge</span>
+                </div>
+                <div class="text-[15px] leading-relaxed text-indigo-100 font-serif italic border-l-2 border-indigo-400 pl-4 py-1">
+                    {{ topic.simulation_logic }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Theory Relations -->
+            {% if topic.theories.all %}
+            <div class="mt-20 pt-12 border-t-2 border-slate-100 font-sans">
+                <h3 class="text-[11px] font-bold text-indigo-600 uppercase tracking-widest mb-6">Related Research Papers</h3>
+                <div class="grid grid-cols-2 gap-6">
+                    {% for theory in topic.theories.all %}
+                    <a href="{% url 'theory_detail' theory.name %}" class="block p-4 bg-slate-50 rounded border border-slate-200 hover:bg-white hover:shadow-md transition-all group">
+                        <div class="text-xs font-bold text-slate-800 group-hover:text-indigo-600">{{ theory.name }}</div>
+                        <div class="text-[10px] text-slate-400 italic mt-1">{{ theory.premise|truncatechars:60 }}</div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Footer Navigation -->
+            <footer class="mt-32 pt-12 border-t border-slate-200 flex justify-between font-sans">
+                {% if prev_topic %}
+                <a href="{% url 'topic_detail' prev_topic.id %}" class="flex flex-col gap-1 max-w-[200px] group">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Previous Chapter</span>
+                    <span class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">&larr; {{ prev_topic.name }}</span>
+                </a>
+                {% else %}
+                <div></div>
+                {% endif %}
+
+                {% if next_topic %}
+                <a href="{% url 'topic_detail' next_topic.id %}" class="flex flex-col gap-1 text-right max-w-[200px] group">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Next Chapter</span>
+                    <span class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">{{ next_topic.name }} &rarr;</span>
+                </a>
+                {% endif %}
+            </footer>
+
+        </article>
+
+    </div>
+</div>
+
+<style>
+    article { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    #manuscript-container { scroll-behavior: smooth; }
+    
+    .book-content h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-top: 2.5rem;
+        margin-bottom: 1.25rem;
+        border-bottom: 1px solid #e0dad0;
+        padding-bottom: 0.6rem;
+        color: #0f172a;
+        font-family: 'Inter', sans-serif;
+        letter-spacing: -0.02em;
+    }
+    .book-content h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        color: #1e293b;
+        font-family: 'Inter', sans-serif;
+    }
+    .book-content p {
+        margin-bottom: 1.4em;
+        line-height: 1.85;
+        color: #334155;
+    }
+    .book-content blockquote {
+        border-left: 4px solid #6366f1;
+        padding: 1rem 1.5rem;
+        margin: 1.75rem 0;
+        background-color: #f8fafc;
+        border-radius: 0 0.5rem 0.5rem 0;
+        font-style: italic;
+        color: #475569;
+        font-size: 1.05rem;
+        line-height: 1.7;
+    }
+    .book-content ul {
+        list-style-type: disc;
+        padding-left: 1.75rem;
+        margin-top: 1rem;
+        margin-bottom: 1.75rem;
+    }
+    .book-content ol {
+        list-style-type: decimal;
+        padding-left: 1.75rem;
+        margin-top: 1rem;
+        margin-bottom: 1.75rem;
+    }
+    .book-content li {
+        margin-bottom: 0.75rem;
+        line-height: 1.75;
+        color: #334155;
+    }
+    .book-content li strong, .book-content p strong {
+        color: #0f172a;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}

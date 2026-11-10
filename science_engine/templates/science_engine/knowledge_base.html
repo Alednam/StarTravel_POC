@@ -1,0 +1,372 @@
+{% extends 'science_engine/base.html' %}
+
+{% block content %}
+<div class="flex-1 overflow-y-auto w-full h-full scroll-smooth" id="kb-page-scroll">
+    <div class="max-w-7xl mx-auto p-8 lg:p-12 bg-[#fdfaf6] min-h-full font-serif text-slate-900 border-x border-[#e0dad0] shadow-2xl">
+    
+    <!-- Header Section -->
+    <div class="mb-12 text-center border-b border-[#e0dad0] pb-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-700 text-xs font-sans font-semibold tracking-wider uppercase mb-4">
+            <span>Unified Epistemic Repository</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+            <span>Pre-1984 Classical & Verified Empirical Foundations</span>
+        </div>
+        <h1 class="text-5xl lg:text-6xl font-bold text-slate-900 mb-4 tracking-tight">The Theoretical Library</h1>
+        <p class="text-lg lg:text-xl text-slate-500 italic max-w-3xl mx-auto leading-relaxed font-sans mb-8">
+            An axiomatic compendium of mathematical physics manuscripts and foundational scientific archives, cataloged for rigorous multi-dimensional exploration.
+        </p>
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto text-center font-sans border-t border-[#ede7df] pt-6">
+            <div class="p-3 bg-white/70 rounded-lg border border-[#e5dfd5]">
+                <div class="text-2xl font-bold text-indigo-900">{{ total_disciplines }}</div>
+                <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Foundations</div>
+            </div>
+            <div class="p-3 bg-white/70 rounded-lg border border-[#e5dfd5]">
+                <div class="text-2xl font-bold text-emerald-800">{{ total_manuscripts }}</div>
+                <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Manuscripts</div>
+            </div>
+            <div class="p-3 bg-white/70 rounded-lg border border-[#e5dfd5]">
+                <div class="text-2xl font-bold text-violet-900">{{ total_topics }}</div>
+                <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Cataloged Topics</div>
+            </div>
+            <div class="p-3 bg-white/70 rounded-lg border border-[#e5dfd5]">
+                <div class="text-2xl font-bold text-blue-900">{{ total_equations }}</div>
+                <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">LaTeX Equations</div>
+            </div>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <div class="mt-8 max-w-2xl mx-auto font-sans">
+            <form method="GET" action="{% url 'knowledge_base' %}" class="flex gap-2">
+                <div class="relative flex-1">
+                    <input type="text" name="q" value="{{ query }}" placeholder="Search topics, equations, principles, or theories (e.g. 'Decoherence', 'Stokes', 'Gibbs')..." 
+                           class="w-full pl-10 pr-4 py-3 bg-white border border-[#d5cec3] rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-inner">
+                    <svg class="w-5 h-5 text-slate-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <button type="submit" class="px-6 py-3 bg-indigo-600 text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-indigo-700 transition shadow">
+                    Search
+                </button>
+                {% if query %}
+                <a href="{% url 'knowledge_base' %}" class="px-4 py-3 bg-slate-200 text-slate-700 font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-slate-300 transition flex items-center">
+                    Clear
+                </a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Navigation Tabs -->
+        {% if not query %}
+        <div class="flex justify-center gap-2 mt-8 font-sans text-xs font-bold uppercase tracking-wider">
+            <a href="?tab=all" class="px-5 py-2 rounded-full border transition-all {% if active_tab == 'all' %}bg-indigo-600 text-white border-indigo-600 shadow-md{% else %}bg-white text-slate-600 border-[#d5cec3] hover:border-indigo-400{% endif %}">
+                All Archives
+            </a>
+            <a href="?tab=foundations" class="px-5 py-2 rounded-full border transition-all {% if active_tab == 'foundations' %}bg-indigo-600 text-white border-indigo-600 shadow-md{% else %}bg-white text-slate-600 border-[#d5cec3] hover:border-indigo-400{% endif %}">
+                Scientific Foundations ({{ total_disciplines }})
+            </a>
+            <a href="?tab=manuscripts" class="px-5 py-2 rounded-full border transition-all {% if active_tab == 'manuscripts' %}bg-indigo-600 text-white border-indigo-600 shadow-md{% else %}bg-white text-slate-600 border-[#d5cec3] hover:border-indigo-400{% endif %}">
+                Research Manuscripts ({{ total_manuscripts }})
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Search Results View -->
+    {% if query %}
+    <div class="mb-16">
+        <div class="flex justify-between items-center mb-8 border-b border-[#e0dad0] pb-4">
+            <h2 class="text-2xl font-bold text-slate-900">
+                Search Results for "<span class="text-indigo-600">{{ query }}</span>" 
+                <span class="text-sm font-sans font-normal text-slate-500">({{ total_results }} matches found)</span>
+            </h2>
+            <a href="{% url 'knowledge_base' %}" class="text-xs font-sans font-bold text-indigo-600 uppercase tracking-widest hover:underline">&larr; Return to Full Library</a>
+        </div>
+
+        <!-- Found Topics -->
+        {% if search_topics %}
+        <div class="mb-12">
+            <h3 class="text-xs font-sans font-bold uppercase tracking-widest text-slate-400 mb-4">Matching Scientific Topics ({{ search_topics|length }})</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for topic in search_topics %}
+                <a href="{% url 'topic_detail' topic.id %}" class="block bg-white p-6 rounded-lg border border-[#e0dad0] hover:border-indigo-500 hover:shadow-md transition">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-sans font-bold text-indigo-600 uppercase tracking-wider">{{ topic.course.subject.name }} &rsaquo; {{ topic.course.name }}</span>
+                        <span class="text-[9px] font-sans font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{{ topic.equations.count }} Eq</span>
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-800 mb-2 hover:text-indigo-600 transition">{{ topic.name }}</h4>
+                    <p class="text-xs font-sans text-slate-500 line-clamp-2 italic leading-relaxed">{{ topic.definition|default:topic.content|truncatewords:25 }}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Found Theories -->
+        {% if search_theories %}
+        <div class="mb-12">
+            <h3 class="text-xs font-sans font-bold uppercase tracking-widest text-slate-400 mb-4">Matching Manuscripts ({{ search_theories|length }})</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for th in search_theories %}
+                <a href="{% url 'theory_detail' th.name %}" class="block bg-white p-6 rounded-lg border border-[#e0dad0] hover:border-indigo-500 hover:shadow-md transition">
+                    <span class="text-[10px] font-sans font-bold text-indigo-600 uppercase tracking-wider">Theoretical Manuscript</span>
+                    <h4 class="text-xl font-bold text-slate-800 mb-2 hover:text-indigo-600 transition">{{ th.name }}</h4>
+                    <p class="text-xs font-sans text-slate-500 line-clamp-2 italic leading-relaxed">{{ th.premise|default:th.content|truncatewords:25 }}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Found Courses -->
+        {% if search_courses %}
+        <div class="mb-12">
+            <h3 class="text-xs font-sans font-bold uppercase tracking-widest text-slate-400 mb-4">Matching Course Modules ({{ search_courses|length }})</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {% for course in search_courses %}
+                <a href="{% url 'course_detail' course.id %}" class="block bg-white p-5 rounded-lg border border-[#e0dad0] hover:border-indigo-500 hover:shadow-md transition">
+                    <span class="text-[10px] font-sans font-bold text-slate-400 uppercase tracking-wider">{{ course.subject.name }}</span>
+                    <h4 class="text-lg font-bold text-slate-800 mb-1 hover:text-indigo-600 transition">{{ course.name }}</h4>
+                    <span class="text-xs font-sans text-indigo-600 font-semibold">{{ course.topics.count }} Chapters &rarr;</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not search_topics and not search_theories and not search_courses %}
+        <div class="text-center py-16 bg-white rounded-xl border border-[#e0dad0]">
+            <p class="text-lg text-slate-500 italic mb-4">No matching scientific records found for "{{ query }}".</p>
+            <a href="{% url 'knowledge_base' %}" class="text-sm font-sans font-bold text-indigo-600 uppercase tracking-wider hover:underline">Return to Library Archives</a>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Main Library Displays -->
+    {% if not query %}
+    
+    <!-- 1. Scientific Foundations Section -->
+    {% if active_tab == 'all' or active_tab == 'foundations' %}
+    <div class="mb-24">
+        <div class="flex items-center justify-between mb-10 border-b border-[#e0dad0] pb-4">
+            <div>
+                <h2 class="text-3xl font-bold text-slate-900 tracking-tight">Foundational Scientific Archives</h2>
+                <p class="text-sm font-sans text-slate-500 mt-1">Core physical, mathematical, chemical, and biological pillars grounded in classical and verified empirical literature.</p>
+            </div>
+            <span class="text-xs font-sans font-bold text-slate-400 uppercase tracking-widest bg-slate-100 px-3 py-1.5 rounded-full">
+                {{ total_disciplines }} Foundation &bull; 4 Flight Pillars
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for subject in subjects %}
+            <div class="group relative bg-white border border-[#e0dad0] rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col overflow-hidden">
+                <!-- Color Spine Accent -->
+                <div class="h-2 w-full bg-{{ subject.color }}-600"></div>
+
+                <div class="p-8 flex flex-col flex-1">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-{{ subject.color }}-600 bg-{{ subject.color }}-50 px-2 py-0.5 rounded border border-{{ subject.color }}-100">
+                            {{ subject.relation_tag }}
+                        </span>
+                        <span class="text-[10px] font-sans font-bold text-slate-400 uppercase tracking-widest">
+                            Archive #{{ forloop.counter }}
+                        </span>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-slate-900 mb-3 tracking-tight group-hover:text-{{ subject.color }}-700 transition-colors">
+                        {{ subject.title }}
+                    </h3>
+
+                    <p class="text-xs text-slate-500 font-sans leading-relaxed mb-6 flex-1 line-clamp-3">
+                        {{ subject.description }}
+                    </p>
+
+                    <!-- Curriculum Preview Badges -->
+                    <div class="mb-6 pt-4 border-t border-slate-100">
+                        <div class="text-[9px] font-sans font-bold text-slate-400 uppercase tracking-widest mb-2">Curriculum Modules:</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            {% for cname in subject.preview_courses %}
+                            <span class="text-[10px] font-sans bg-slate-50 text-slate-600 px-2 py-0.5 rounded border border-slate-200 truncate max-w-full">
+                                {{ cname }}
+                            </span>
+                            {% endfor %}
+                            {% if subject.courses_count > 4 %}
+                            <span class="text-[10px] font-sans font-semibold text-slate-400 px-1 py-0.5">
+                                +{{ subject.courses_count|add:"-4" }} more
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Statistics Matrix -->
+                    <div class="grid grid-cols-3 gap-2 py-3 px-3 bg-[#fdfaf6] border border-[#ece4d9] rounded-lg mb-6 text-center font-sans">
+                        <div>
+                            <div class="text-base font-bold text-slate-800">{{ subject.courses_count }}</div>
+                            <div class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Courses</div>
+                        </div>
+                        <div class="border-x border-[#ece4d9]">
+                            <div class="text-base font-bold text-slate-800">{{ subject.topics_count }}</div>
+                            <div class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Topics</div>
+                        </div>
+                        <div>
+                            <div class="text-base font-bold text-slate-800">{{ subject.equations_count }}</div>
+                            <div class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Formulas</div>
+                        </div>
+                    </div>
+
+                    <!-- Action Link -->
+                    <a href="{% url 'subject_detail' subject.id %}" class="w-full py-2.5 px-4 bg-white border border-[#d5cec3] hover:border-{{ subject.color }}-600 hover:bg-{{ subject.color }}-600 hover:text-white text-slate-800 font-sans text-xs font-bold uppercase tracking-wider text-center rounded-lg transition-all duration-200 shadow-sm flex items-center justify-center gap-2 group/btn">
+                        <span>Explore Discipline</span>
+                        <span class="transition-transform group-hover/btn:translate-x-1">&rarr;</span>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if subjects|length == 1 and subjects.0.courses %}
+        <div class="mt-12 bg-white rounded-xl border border-[#e0dad0] p-6 lg:p-8 shadow-md">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#e0dad0] pb-4 mb-6">
+                <div>
+                    <span class="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-cyan-600">Flight Curriculum Modules</span>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-0.5">The Four Pillars of Spaceflight</h3>
+                </div>
+                <a href="{% url 'space_flight' %}" class="px-4 py-2 rounded-lg bg-cyan-600 text-white font-sans text-xs font-bold uppercase tracking-wider hover:bg-cyan-700 transition shadow inline-flex items-center gap-1.5 self-start sm:self-auto">
+                    <span>Space Flight Portal</span>
+                    <span>&rarr;</span>
+                </a>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {% for course in subjects.0.courses %}
+                <a href="{% url 'course_detail' course.id %}" class="p-5 rounded-lg border border-[#e0dad0] hover:border-cyan-500 hover:shadow-md transition bg-slate-50/50 flex flex-col justify-between group">
+                    <div>
+                        <div class="text-[10px] font-sans font-bold text-cyan-600 uppercase tracking-widest mb-1">Pillar {{ forloop.counter }}</div>
+                        <h4 class="text-base font-bold text-slate-800 group-hover:text-cyan-700 transition leading-snug mb-2">{{ course.name }}</h4>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-200/80 flex items-center justify-between text-xs font-sans text-slate-500">
+                        <span>{{ course.topics.count }} Topics</span>
+                        <span class="font-bold text-cyan-600 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- 2. Theoretical Physics Manuscripts Section -->
+    {% if active_tab == 'all' or active_tab == 'manuscripts' %}
+    <div class="mb-20">
+        <div class="flex items-center justify-between mb-10 border-b border-[#e0dad0] pb-4">
+            <div>
+                <h2 class="text-3xl font-bold text-slate-900 tracking-tight">Theoretical Physics Manuscripts</h2>
+                <p class="text-sm font-sans text-slate-500 mt-1">Axiomatic formulations, Cauchy hypersurface foliations, symplectic reduction engines, and gauge field frameworks.</p>
+            </div>
+            <span class="text-xs font-sans font-bold text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1.5 rounded-full border border-indigo-100">
+                {{ theories|length }} Research Papers
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for th in theories %}
+            <div class="group relative bg-white border border-[#e0dad0] rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col overflow-hidden">
+                <!-- Color Spine Accent -->
+                <div class="h-2 w-full {% if 'Core' in th.relation_tag %}bg-indigo-600{% elif 'Historical' in th.relation_tag %}bg-slate-400{% else %}bg-cyan-600{% endif %}"></div>
+
+                <div class="p-8 flex flex-col flex-1">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[10px] font-sans font-bold uppercase tracking-[0.2em] {% if 'Core' in th.relation_tag %}text-indigo-600 bg-indigo-50 border-indigo-100{% elif 'Historical' in th.relation_tag %}text-slate-600 bg-slate-50 border-slate-200{% else %}text-cyan-700 bg-cyan-50 border-cyan-100{% endif %} px-2 py-0.5 rounded border">
+                            {{ th.relation_tag }}
+                        </span>
+                        {% if th.is_sealed %}
+                        <span class="inline-flex items-center gap-1 text-[9px] font-sans font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded" title="Cryptographically Sealed: {{ th.seal_hash }}">
+                            <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
+                            SEALED
+                        </span>
+                        {% else %}
+                        <span class="text-[9px] font-sans font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
+                            ACTIVE RESEARCH
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-slate-900 mb-3 tracking-tight group-hover:text-indigo-700 transition-colors">
+                        {{ th.title }}
+                    </h3>
+
+                    <p class="text-xs text-slate-500 font-sans leading-relaxed mb-6 flex-1 line-clamp-4">
+                        {{ th.description }}
+                    </p>
+
+                    <!-- Domains Badges -->
+                    {% if th.domains %}
+                    <div class="mb-6 pt-4 border-t border-slate-100">
+                        <div class="text-[9px] font-sans font-bold text-slate-400 uppercase tracking-widest mb-2">Physical Domains:</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            {% for dom in th.domains %}
+                            <span class="text-[10px] font-sans bg-slate-50 text-slate-600 px-2 py-0.5 rounded border border-slate-200">
+                                {{ dom }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Metadata Matrix -->
+                    <div class="grid grid-cols-2 gap-2 py-3 px-3 bg-[#fdfaf6] border border-[#ece4d9] rounded-lg mb-6 text-center font-sans">
+                        <div>
+                            <div class="text-base font-bold text-slate-800">{{ th.topics_count }}</div>
+                            <div class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Linked Topics</div>
+                        </div>
+                        <div class="border-l border-[#ece4d9]">
+                            <div class="text-base font-bold text-slate-800">{{ th.equations_count }}</div>
+                            <div class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Formal Invariants</div>
+                        </div>
+                    </div>
+
+                    <!-- Action Link -->
+                    <a href="{% url 'theory_detail' th.raw_name %}" class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-sans text-xs font-bold uppercase tracking-wider text-center rounded-lg transition-all duration-200 shadow-sm flex items-center justify-center gap-2 group/btn">
+                        <span>Study Manuscript</span>
+                        <span class="transition-transform group-hover/btn:translate-x-1">&rarr;</span>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+</div>
+
+<style>
+    /* Tailwind dynamic color fallbacks */
+    .bg-emerald-600 { background-color: #059669; }
+    .bg-violet-600 { background-color: #7c3aed; }
+    .bg-teal-600 { background-color: #0d9488; }
+    .bg-blue-600 { background-color: #2563eb; }
+    .bg-amber-600 { background-color: #d97706; }
+    .bg-rose-600 { background-color: #e11d48; }
+    .bg-cyan-600 { background-color: #0891b2; }
+    
+    .text-emerald-600 { color: #059669; }
+    .text-violet-600 { color: #7c3aed; }
+    .text-teal-600 { color: #0d9488; }
+    .text-blue-600 { color: #2563eb; }
+    .text-amber-600 { color: #d97706; }
+    .text-rose-600 { color: #e11d48; }
+    .text-cyan-700 { color: #0e7490; }
+
+    .group:hover .group-hover\:text-emerald-700 { color: #047857; }
+    .group:hover .group-hover\:text-violet-700 { color: #6d28d9; }
+    .group:hover .group-hover\:text-teal-700 { color: #0f766e; }
+    .group:hover .group-hover\:text-blue-700 { color: #1d4ed8; }
+    .group:hover .group-hover\:text-amber-700 { color: #b45309; }
+    .group:hover .group-hover\:text-rose-700 { color: #be123c; }
+</style>
+</div>
+{% endblock %}

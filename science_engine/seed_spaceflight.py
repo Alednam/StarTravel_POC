@@ -1,0 +1,779 @@
+import os
+import sys
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BASE_DIR))
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'scicalc.settings')
+import django
+django.setup()
+
+from science_engine.models import Subject, Course, Topic, Equation
+
+def seed_spaceflight():
+    print("Seeding 'Planetary & Solar Magnetospheric Spaceflight'...")
+    
+    subject, _ = Subject.objects.get_or_create(
+        name="Planetary & Solar Magnetospheric Spaceflight",
+        defaults={
+            "description": "Comprehensive scientific curriculum on utilizing planetary and heliospheric electromagnetic fields, magnetospheres, plasma wave interactions, and cosmic radiation belts for propellantless propulsion, autonomous vector navigation, and human evolutionary adaptation in deep space."
+        }
+    )
+
+    # -------------------------------------------------------------
+    # COURSE 1: Electromagnetic & Magnetospheric Propulsion
+    # -------------------------------------------------------------
+    course_prop, _ = Course.objects.get_or_create(
+        subject=subject,
+        name="Electromagnetic & Magnetospheric Propulsion",
+        defaults={"description": "Propellantless propulsion mechanisms harnessing planetary magnetic dipoles, electrodynamic Lorentz forces, Alfvén wave momentum exchange, and solar wind plasma pressure."}
+    )
+
+    topics_prop = [
+        {
+            "name": "Electrodynamic Tethers (EDTs) & Motional EMF",
+            "content": r"""> **Formal Definition:** Electrodynamic tether propulsion operates by translating a conductive cable of length $\vec{L}$ through planetary magnetic flux $\vec{B}$ at relative velocity $\vec{v}_{\text{rel}}$, inducing a motional electromotive force $\mathcal{E} = \int (\vec{v}_{\text{rel}} \times \vec{B}) \cdot d\vec{\ell}$. When current flows through ionospheric plasma contactors, it produces a continuous Lorentz force $\vec{F} = I (\vec{L} \times \vec{B})$, enabling propellantless orbital altitude raising or rapid electrodynamic de-orbiting without chemical reaction mass.
+
+### Principles of Electrodynamic Tether Propulsion
+
+Electrodynamic Tethers (EDTs) represent a propellantless propulsion system that directly couples an orbital spacecraft to a planet's rotating magnetosphere. As a conductive cable of length $\vec{L}$ traverses a planetary magnetic field $\vec{B}$ at orbital velocity $\vec{v}_{orb}$, the Lorentz force acting on charge carriers within the conductor establishes a motional electric field:
+
+$$\vec{E}_{ind} = \vec{v}_{rel} \times \vec{B}$$
+
+Where $\vec{v}_{rel} = \vec{v}_{orb} - \vec{\omega}_p \times \vec{r}$ represents the velocity of the spacecraft relative to the co-rotating planetary plasma and magnetosphere. Integrating this electric field over the physical length of the tether yields an induced electromotive force (EMF):
+
+$$\mathcal{E} = \int_0^L (\vec{v}_{rel} \times \vec{B}) \cdot d\vec{\ell}$$
+
+### Operating Modes: Generator vs. Motor
+
+1. **De-orbit & Energy Generation (Generator Mode):** When the circuit closes through the surrounding ionospheric plasma via hollow cathode plasma contactors, electrons are drawn from the ambient plasma at the positive anodic end and emitted back at the cathodic end. The resulting current $\vec{I}$ flows along the tether, producing an electromagnetic drag force:
+
+$$\vec{F}_{drag} = \int_0^L I(s) (d\vec{\ell} \times \vec{B})$$
+
+This drag force decelerates the spacecraft, enabling rapid propellantless de-orbiting while generating electrical power for onboard avionics.
+
+2. **Orbital Boost & Propulsion (Motor / Thruster Mode):** By utilizing an onboard electrical power source (e.g., solar photovoltaic arrays or nuclear thermal systems) to drive current in the direction opposing the induced EMF ($V_{bias} > \mathcal{E}$), the direction of the Lorentz force is reversed:
+
+$$\vec{F}_{thrust} = I_{driven} (\vec{L} \times \vec{B})$$
+
+This produces continuous, propellantless acceleration, raising the semi-major axis of the orbit without consuming chemical or ion reaction mass.""",
+            "simulation_logic": "4PT Logic: Electrodynamic tethers are the literal 'Grid Crawlers' of the simulation. Rather than expending compiled matter packets (reaction mass) to generate thrust, the tether grips the simulation's coordinate field lines (the planetary B-field) and climbs the mesh directly.",
+            "equations": [
+                {
+                    "name": "Motional Electromotive Force (EMF)",
+                    "formula": r"\mathcal{E} = \int_0^L (\vec{v}_{rel} \times \vec{B}) \cdot d\vec{\ell}",
+                    "explanation": "Induced electromotive potential across a conductor moving relative to a planetary magnetic field."
+                },
+                {
+                    "name": "Lorentz Tether Force",
+                    "formula": r"\vec{F} = I (\vec{L} \times \vec{B})",
+                    "explanation": "Electromagnetic thrust or drag generated by current interacting with the local magnetospheric flux density."
+                }
+            ]
+        },
+        {
+            "name": "Magnetic Sails (Magsails) & Plasma Magnetospheres",
+            "content": r"""> **Formal Definition:** A Magnetic Sail (Magsail) generates an artificial magnetic dipole bubble via a superconducting loop to deflect supersonic heliospheric solar wind protons, producing dynamic drag thrust ($F = P_{\text{dyn}} \cdot \pi R_{\text{mp}}^2$) at the standoff magnetopause boundary where solar wind dynamic pressure balances magnetic flux pressure.
+
+### Magnetic Sails & Solar Wind Dynamic Coupling
+
+A Magnetic Sail (Magsail) utilizes a large loop of high-temperature superconductor (HTS) carrying direct current to generate an artificial magnetic dipole field. When deployed in the interplanetary medium, this artificial magnetosphere deflects incoming solar wind protons and alpha particles moving at supersonic velocities ($v_{sw} \approx 400 - 800\text{ km/s}$).
+
+The interaction between the solar wind dynamic pressure $P_{dyn}$ and the magnetic field pressure $P_{mag}$ establishes a detached bow shock and a magnetic standoff boundary (magnetopause), transferring momentum from the solar wind stream directly to the spacecraft:
+
+$$P_{dyn} = \frac{1}{2} \rho_{sw} v_{sw}^2, \quad P_{mag} = \frac{B(r)^2}{2\mu_0}$$
+
+### Standoff Radius and Thrust Scaling
+
+For a magnetic dipole with moment $\vec{M}$, the equatorial field falls off as $B(r) \sim \frac{\mu_0 M}{4\pi r^3}$. Equating magnetic pressure to the solar wind dynamic pressure determines the effective cross-sectional interaction radius $R_{mp}$:
+
+$$R_{mp} \approx \left(\frac{\mu_0 M^2}{8\pi^2 \rho_{sw} v_{sw}^2}\right)^{1/6}$$
+
+Although the physical coil may only span 10 to 100 meters, the effective magnetic deflection diameter extends tens of kilometers into the space plasma. In **Mini-Magnetospheric Plasma Propulsion (M2P2)**, low-energy plasma is injected into the dipole core, expanding the magnetic bubble via the plasma beta effect ($\beta = 2\mu_0 p / B^2 \sim 1$) and dramatically increasing the effective thrust-to-mass ratio.""",
+            "simulation_logic": "4PT Logic: Magsails operate as dynamic 'Packet Deflectors'. By setting up a localized boundary condition (magnetic dipole bubble), the craft intercepts the high-velocity stream of background data packets (solar wind) and extracts translational momentum without burning physical fuel.",
+            "equations": [
+                {
+                    "name": "Solar Wind Dynamic Pressure",
+                    "formula": r"P_{dyn} = \frac{1}{2} \rho_{sw} v_{sw}^2",
+                    "explanation": "Kinetic dynamic pressure exerted by supersonic heliospheric plasma streams."
+                },
+                {
+                    "name": "Magnetopause Standoff Radius",
+                    "formula": r"R_{mp} = \left(\frac{\mu_0 M^2}{8\pi^2 \rho_{sw} v_{sw}^2}\right)^{1/6}",
+                    "explanation": "Effective interaction radius where magnetic pressure balances solar wind momentum flux."
+                }
+            ]
+        },
+        {
+            "name": "Alfvén Wave Propulsion & Magnetohydrodynamic (MHD) Coupling",
+            "content": r"""> **Formal Definition:** Alfvén wave propulsion couples an electrodynamic craft to a magnetized planetary plasma medium by radiating field-aligned shear Alfvén wings with characteristic impedance $Z_A = \mu_0 v_A$, transferring momentum directly to the planetary core via non-dissipative magnetohydrodynamic wave packets.
+
+### Magnetohydrodynamic Coupling and Alfvén Wings
+
+In high-density magnetized space plasmas (such as planetary ionospheres and the inner plasmasphere), magnetic field lines behave as elastic strings 'frozen' into the plasma fluid according to Alfvén's frozen-in flux theorem:
+
+$$\frac{\partial \vec{B}}{\partial t} = \nabla \times (\vec{v} \times \vec{B})$$
+
+When an electrodynamic craft moves across this medium at sub-Alfvénic or super-Alfvénic speed, it perturbs the local field lines, launching pairs of field-aligned shear Alfvén wave currents known as **Alfvén Wings**.
+
+### Phase Velocity and Wave Impedance
+
+The characteristic speed at which these transverse electromagnetic-hydrodynamic disturbances propagate along the planetary field lines is the Alfvén velocity $v_A$:
+
+$$v_A = \frac{B}{\sqrt{\mu_0 \rho_i}}$$
+
+Where $\rho_i = n_i m_i$ is the ion mass density. The characteristic radiation impedance of the space plasma seen by the spacecraft tether or plasma contactor is:
+
+$$Z_A = \mu_0 v_A = \frac{B}{\sqrt{\rho_i / \mu_0}}$$
+
+By matching the electrical impedance of the spacecraft's power system to $Z_A$, maximum electrical power can be coupled into or extracted from the planetary magnetosphere, exchanging orbital momentum directly with the planet's rotating core.""",
+            "simulation_logic": "4PT Logic: Alfvén waves represent the vibrational harmonics of the simulation's topological coordinate grid. The spacecraft acts as an acoustic transducer on the spacetime fabric, strumming the magnetic lines of force to transmit and absorb velocity updates.",
+            "equations": [
+                {
+                    "name": "Alfvén Velocity",
+                    "formula": r"v_A = \frac{B}{\sqrt{\mu_0 \rho_i}}",
+                    "explanation": "Phase velocity of transverse magnetohydrodynamic waves in magnetized plasma."
+                },
+                {
+                    "name": "Alfvén Plasma Impedance",
+                    "formula": r"Z_A = \frac{B}{\sqrt{\rho_i / \mu_0}}",
+                    "explanation": "Characteristic wave radiation impedance of a magnetized plasma medium."
+                }
+            ]
+        },
+        {
+            "name": "Lorentz Force Orbit Modification & Charged Spacecraft Dynamics",
+            "content": r"""> **Formal Definition:** Lorentz force orbit modification utilizes controlled electrostatic spacecraft surface biasing $q(t)$ synchronized with orbital true anomaly to interact with planetary magnetic fields ($\vec{a}_L = \frac{q}{m} (\vec{v} \times \vec{B})$), driving propellantless nodal plane precessions and orbital inclination changes.
+
+### Orbital Perturbations via Electrostatic Charging
+
+A spacecraft that maintains a net electrical charge $q$ while traveling through a planetary magnetosphere experiences the fundamental Lorentz acceleration:
+
+$$\vec{a}_L = \frac{q}{m} (\vec{E} + \vec{v} \times \vec{B})$$
+
+In low-inclination or polar orbits, the interaction between the vehicle's velocity vector $\vec{v}$ and the planetary dipolar field $\vec{B}$ produces out-of-plane forces capable of driving continuous orbital plane precession (nodal regression) and inclination modifications without burning propulsion propellant.
+
+### Hamiltonian Dynamics in a Magnetic Monopole/Dipole Field
+
+The generalized canonical momentum for a charged spacecraft in a magnetic vector potential $\vec{A}$ is given by:
+
+$$\vec{P} = m\vec{v} + q\vec{A}$$
+
+Because the canonical momentum includes the magnetic vector potential, non-conservative resonant orbits can be unlocked by modulating the spacecraft charge $q(t)$ synchronously with orbital true anomaly $\nu$. Modulating $q$ at orbital harmonics pumps orbital eccentricity or shifts the periapsis without reaction mass.""",
+            "simulation_logic": "4PT Logic: Charge modulation changes the spacecraft's local pointer value in the coordinate matrix. Modulating q(t) at resonant frequencies tricks the simulation's integrator into performing free coordinate transformation shifts.",
+            "equations": [
+                {
+                    "name": "Charged Spacecraft Lorentz Acceleration",
+                    "formula": r"\vec{a}_L = \frac{q}{m} (\vec{v} \times \vec{B})",
+                    "explanation": "Kinetic acceleration imparted to a charged spacecraft by a planetary magnetic field."
+                },
+                {
+                    "name": "Generalized Canonical Momentum",
+                    "formula": r"\vec{P} = m\vec{v} + q\vec{A}",
+                    "explanation": "Canonical momentum coupling spacecraft mass and magnetic vector potential."
+                }
+            ]
+        }
+    ]
+
+    for t_data in topics_prop:
+        topic, _ = Topic.objects.get_or_create(
+            course=course_prop,
+            name=t_data["name"],
+            defaults={
+                "content": t_data["content"],
+                "simulation_logic": t_data["simulation_logic"]
+            }
+        )
+        topic.content = t_data["content"]
+        topic.simulation_logic = t_data["simulation_logic"]
+        topic.save()
+        for eq_data in t_data["equations"]:
+            Equation.objects.get_or_create(
+                topic=topic,
+                name=eq_data["name"],
+                defaults={
+                    "formula": eq_data["formula"],
+                    "explanation": eq_data["explanation"]
+                }
+            )
+
+    # -------------------------------------------------------------
+    # COURSE 2: Planetary Field Navigation & Orbit Determination
+    # -------------------------------------------------------------
+    course_nav, _ = Course.objects.get_or_create(
+        subject=subject,
+        name="Planetary Field Navigation & Orbit Determination",
+        defaults={"description": "Autonomous spacecraft state determination, spherical harmonic field mapping, magnetic drift shell coordinates, and pulsar-magnetospheric clock synchronizations."}
+    )
+
+    topics_nav = [
+        {
+            "name": "Spherical Harmonic Geomagnetic Field Modeling (Gauss Coefficients)",
+            "content": r"""> **Formal Definition:** Spherical harmonic geomagnetic modeling represents a planet's current-free internal magnetic induction ($\nabla \times \vec{B} = 0$) as the negative gradient of a scalar magnetic potential $\vec{B} = -\nabla V$, expanded into an infinite series of spherical harmonics and Schmidt quasi-normalized Legendre polynomials parameterized by empirical Gauss coefficients $(g_n^m, h_n^m)$. In spacecraft navigation, matching real-time 3-axis fluxgate magnetometer observations against these coefficient tables enables autonomous, closed-loop magnetometer-only orbit determination (MAG-OD) without external ground tracking or GNSS constellations.
+
+### Mathematical Representation of Planetary Magnetic Fields
+
+For regions devoid of electric currents ($\nabla \times \vec{B} = 0$), a planet's internal magnetic field can be expressed as the negative gradient of a scalar magnetic potential $V$:
+
+$$\vec{B} = -\nabla V$$
+
+The scalar potential $V$ satisfies Laplace's equation $\nabla^2 V = 0$. In spherical coordinates $(r, \theta, \phi)$, the potential is expanded in terms of spherical harmonics and Schmidt quasi-normalized Legendre polynomials $P_n^m(\cos\theta)$:
+
+$$V(r, \theta, \phi) = a \sum_{n=1}^N \left(\frac{a}{r}\right)^{n+1} \sum_{m=0}^n \left(g_n^m \cos m\phi + h_n^m \sin m\phi\right) P_n^m(\cos\theta)$$
+
+Where $a$ is the mean planetary radius, and $g_n^m, h_n^m$ are the empirical Gauss coefficients characterizing the internal dynamo.
+
+### Magnetometer-Only Orbit Determination (MAG-OD)
+
+By reading 3-axis fluxgate magnetometer data $\vec{B}_{meas}(t)$ and comparing the measured vector magnitude, dip angle, and gradient to the spherical harmonic table via an Extended Kalman Filter (EKF), an autonomous spacecraft can resolve its exact 3D position $(r, \theta, \phi)$ and orbital velocity $\vec{v}$ completely independently of external GPS or ground tracking networks.""",
+            "simulation_logic": "4PT Logic: Gauss coefficients are the simulation's topological hash table for planetary coordinates. Measuring the local magnetic vector is equivalent to querying the planet node's spatial position registers.",
+            "equations": [
+                {
+                    "name": "Gauss Spherical Harmonic Expansion",
+                    "formula": r"V(r, \theta, \phi) = a \sum_{n=1}^N \left(\frac{a}{r}\right)^{n+1} \sum_{m=0}^n (g_n^m \cos m\phi + h_n^m \sin m\phi) P_n^m(\cos\theta)",
+                    "explanation": "Scalar potential expressing planetary magnetic field geometry via Legendre polynomials."
+                },
+                {
+                    "name": "Magnetic Vector Field Relation",
+                    "formula": r"\vec{B} = -\nabla V",
+                    "explanation": "Divergence-free magnetic induction derived from scalar potential gradients."
+                }
+            ]
+        },
+        {
+            "name": "McIlwain (B, L) Coordinates & Magnetic Drift Shells",
+            "content": r"""> **Formal Definition:** McIlwain $(B, L)$ coordinates constitute a curvilinear magnetic coordinate system that uniquely labels the drift shells of charged particles trapped in non-dipolar planetary magnetospheres via the three adiabatic motion invariants (cyclotron magnetic moment $\mu_m$, longitudinal bounce action $J$, and azimuthal drift flux $\Phi$). In orbital navigation, trajectories aligned with constant $L$-shells allow spacecraft to map ionizing radiation zones, evade high-flux trapped particle belts, and locate optimal magnetic flux corridors for electrodynamic propulsion.
+
+### Adiabatic Invariants and the McIlwain L-Parameter
+
+Trapped charged particles in a planetary magnetosphere execute three distinct periodic motions, each associated with an adiabatic invariant:
+
+1. **Cyclotron Gyration** around field lines ($\mu_m = \frac{p_\perp^2}{2m B}$, first invariant).
+2. **Bounce Motion** between magnetic mirror points ($J = \oint p_\parallel ds$, second invariant).
+3. **Azimuthal Drift** around the planet ($I_3 = \Phi = \oint \vec{A} \cdot d\vec{\ell}$, third invariant).
+
+Because real planetary fields deviate significantly from ideal dipoles due to non-axial anomalies and solar wind compression, Carl McIlwain introduced the $(B, L)$ coordinate system to label magnetic drift shells uniquely.
+
+### The L-Shell Geometry
+
+The McIlwain $L$-parameter represents the equatorial radius of a magnetic field line measured in planetary radii ($R_p$):
+
+$$r = R_p L \cos^2\lambda$$
+
+Where $\lambda$ is the magnetic latitude. In this coordinate system, the magnetic field strength along a field line is given by:
+
+$$B(L, \lambda) = \frac{B_0}{L^3} \frac{\sqrt{1 + 3\sin^2\lambda}}{\cos^6\lambda}$$
+
+Navigating along constant $L$-shells enables spacecraft to optimize radiation belt traversals, minimize energetic particle bombardment, and identify maximum magnetic flux corridors for electrodynamic thrusting.""",
+            "simulation_logic": "4PT Logic: McIlwain L-shells are the simulation's orbital concentric memory tracks. Particles and spacecraft on a given L-shell share invariant drift indices, serving as natural magnetic highway lanes.",
+            "equations": [
+                {
+                    "name": "Dipole Field Line Equation",
+                    "formula": r"r = R_p L \cos^2\lambda",
+                    "explanation": "Radial distance to a planetary magnetic field line as a function of magnetic latitude and L-shell."
+                },
+                {
+                    "name": "Magnetic Field Magnitude along L-Shell",
+                    "formula": r"B(L, \lambda) = \frac{B_0}{L^3} \frac{\sqrt{1 + 3\sin^2\lambda}}{\cos^6\lambda}",
+                    "explanation": "Total magnetic flux density along a dipole field line at latitude lambda."
+                }
+            ]
+        },
+        {
+            "name": "Magnetopause & Bow Shock Boundary Triangulation",
+            "content": r"""> **Formal Definition:** Magnetopause and bow shock boundary triangulation is an autonomous celestial navigation method that locates macroscopic planetary plasma boundaries by detecting sharp discontinuities in plasma velocity, density, and magnetic field vector across the collisionless bow shock and magnetopause. Governing pressure balances ($\frac{B_{\text{int}}^2}{2\mu_0} \approx \rho_{\text{sw}} v_{\text{sw}}^2 \cos^2\psi$) and magnetohydrodynamic (MHD) Rankine-Hugoniot jump relations allow onboard sensors to compute real-time relative distance, standoff geometry, and entry vectors relative to the host planet.
+
+### Locating Celestial Boundaries via Plasma Jump Conditions
+
+As a planetary body orbits the Sun, its internal magnetic field deflects the supersonic solar wind, creating two primary macroscopic boundaries:
+1. **The Bow Shock:** Where supersonic solar wind transitions to subsonic flow ($M_A > 1 \to M_A < 1$).
+2. **The Magnetopause:** The contact discontinuity where planetary magnetic pressure equals solar wind dynamic pressure.
+
+### The Standoff Equilibrium Condition
+
+At the subsolar point of the magnetopause, the boundary condition is dictated by the pressure balance:
+
+$$\frac{B_{int}^2}{2\mu_0} = \rho_{sw} v_{sw}^2 \cos^2\psi + \frac{B_{imf}^2}{2\mu_0}$$
+
+Where $\psi$ is the angle between the solar wind velocity and the surface normal. By detecting the discontinuous jumps in magnetic field vector $\vec{B}$, electron density $n_e$, and temperature $T$ across the shock (governed by the **MHD Rankine-Hugoniot relations**), an onboard guidance system can precisely triangulate the spacecraft's spatial position relative to the planet and the heliospheric bow shock in real-time.""",
+            "simulation_logic": "4PT Logic: The magnetopause is the boundary collision volume between the planet's local sandbox and the solar server's ambient streaming buffer. Detecting boundary jumps provides instantaneous position calibration.",
+            "equations": [
+                {
+                    "name": "Magnetopause Pressure Balance",
+                    "formula": r"\frac{B_{int}^2}{2\mu_0} = \rho_{sw} v_{sw}^2 \cos^2\psi + \frac{B_{imf}^2}{2\mu_0}",
+                    "explanation": "Dynamic pressure balance establishing the physical boundary of planetary magnetospheres."
+                }
+            ]
+        },
+        {
+            "name": "X-Ray Pulsar Navigation (XPNAV) & Barycentric Coordinate Timing",
+            "content": r"""> **Formal Definition:** X-ray Pulsar Navigation (XPNAV) is an autonomous deep-space positioning and relativistic timing technique that measures periodic photon time-of-arrival (TOA) pulses emitted by rotation-powered millisecond pulsars (MSPs). By transforming measured arrival times to the Solar System Barycenter (SSB) through geometric, Shapiro gravitational delay, and Einstein relativistic clock corrections ($t_{\text{SSB}} = t_{\text{arr}} + \frac{\vec{n}_k \cdot \vec{r}}{c} + \Delta t_{\text{Shapiro}} + \Delta t_{\text{Einstein}}$), an onboard navigation filter triangulates the spacecraft's three-dimensional position vector $\vec{r}$ and clock bias across interplanetary space.
+
+### Relativistic Autonomous Positioning via Cosmic Beacons
+
+X-ray Pulsar Navigation (XPNAV) provides absolute spatial positioning across the solar system by observing the periodic pulse arrival times of rotation-powered millisecond pulsars (MSPs). Because millisecond pulsars possess rotational stabilities comparable to atomic frequency standards ($df/f \sim 10^{-15}$), they function as deep-space GPS satellites.
+
+### Photon Time of Arrival (TOA) Mapping
+
+The measured photon time of arrival $t_{arr}$ at the spacecraft detector is transformed to the Solar System Barycenter (SSB) reference frame via the relativistic timing equation:
+
+$$t_{SSB} = t_{arr} + \frac{\vec{n}_k \cdot \vec{r}}{c} + \Delta t_{Shapiro} + \Delta t_{Einstein}$$
+
+Where $\vec{n}_k$ is the unit vector pointing toward pulsar $k$, $\vec{r}$ is the spacecraft position vector relative to the SSB, $\Delta t_{Shapiro}$ is the gravitational time delay caused by intervening planetary masses, and $\Delta t_{Einstein}$ represents clock drift due to gravitational redshift and time dilation.
+
+Observing three or more non-coplanar pulsars allows resolving the three components of the spacecraft position vector $\vec{r} = (x, y, z)$ with sub-kilometer precision across interplanetary space.""",
+            "simulation_logic": "4PT Logic: Millisecond pulsars are the simulation's master clock oscillators. Synchronizing with pulsar pulse arrival times provides absolute CPU clock alignment across disparate rendering slices.",
+            "equations": [
+                {
+                    "name": "Barycentric Pulse Timing Equation",
+                    "formula": r"t_{SSB} = t_{arr} + \frac{\vec{n}_k \cdot \vec{r}}{c} + \Delta t_{Shapiro} + \Delta t_{Einstein}",
+                    "explanation": "Relativistic transformation relating local pulse arrival time to solar system barycentric coordinates."
+                }
+            ]
+        }
+    ]
+
+    for t_data in topics_nav:
+        topic, _ = Topic.objects.get_or_create(
+            course=course_nav,
+            name=t_data["name"],
+            defaults={
+                "content": t_data["content"],
+                "simulation_logic": t_data["simulation_logic"]
+            }
+        )
+        topic.content = t_data["content"]
+        topic.simulation_logic = t_data["simulation_logic"]
+        topic.save()
+        for eq_data in t_data["equations"]:
+            Equation.objects.get_or_create(
+                topic=topic,
+                name=eq_data["name"],
+                defaults={
+                    "formula": eq_data["formula"],
+                    "explanation": eq_data["explanation"]
+                }
+            )
+
+    # -------------------------------------------------------------
+    # COURSE 3: Human Evolution & Bioelectromagnetics in Space
+    # -------------------------------------------------------------
+    course_bio, _ = Course.objects.get_or_create(
+        subject=subject,
+        name="Human Evolution & Bioelectromagnetics in Space",
+        defaults={"description": "Cellular membrane electrophysiology, radical-pair magnetoreception, active magnetic radiation shielding, hypomagnetic stress, and genomic speciation during interplanetary transit."}
+    )
+
+    topics_bio = [
+        {
+            "name": "Bioelectromagnetics & Cellular Membrane Voltage Potentials",
+            "content": r"""> **Formal Definition:** Bioelectromagnetics in spaceflight addresses the preservation of endogenous transmembrane resting potentials ($V_m \sim -70\text{ mV}$, electric gradient $\sim 1.4 \times 10^7\text{ V/m}$) governed by the Goldman-Hodgkin-Katz equation, mitigating cellular depolarizations and neurological disturbances induced by ambient magnetic field variations during interplanetary transit.
+
+### Cellular Electrodynamics in Space Environments
+
+Every living cell maintains an endogenous transmembrane electrical potential ($V_m \sim -70\text{ mV}$) across its $5\text{ nm}$ lipid bilayer, producing a massive static electric field gradient on the order of:
+
+$$E_{mem} = \frac{V_m}{d} \approx \frac{70 \times 10^{-3}\text{ V}}{5 \times 10^{-9}\text{ m}} = 1.4 \times 10^7\text{ V/m}$$
+
+This intense field controls voltage-gated ion channels ($Na^+, K^+, Ca^{2+}, Cl^-$), mitochondrial ATP synthesis, and mitotic spindle alignment during cell division.
+
+### The Goldman-Hodgkin-Katz Equation
+
+The steady-state resting membrane potential is governed by the relative membrane permeabilities $P_i$ and concentration gradients of the primary monovalent ions:
+
+$$V_m = \frac{RT}{F} \ln\left(\frac{P_K [K^+]_o + P_{Na} [Na^+]_o + P_{Cl} [Cl^-]_i}{P_K [K^+]_i + P_{Na} [Na^+]_i + P_{Cl} [Cl^-]_o}\right)$$
+
+When human crews operate in strong artificial magnetic fields ($B > 1\text{ T}$) generated by onboard magnetic shields or magnetic propulsion drives, Lorentz forces induce micro-eddy currents and Hall voltages across ion pathways, modifying neurological signal propagation and cardiovascular electrophysiology.""",
+            "simulation_logic": "4PT Logic: The cell membrane voltage is the local hardware BIOS operating voltage of the biological avatar. External fields interface directly with this potential, inducing firmware adjustments in ion flux.",
+            "equations": [
+                {
+                    "name": "Goldman-Hodgkin-Katz Membrane Voltage",
+                    "formula": r"V_m = \frac{RT}{F} \ln\left(\frac{P_K [K^+]_o + P_{Na} [Na^+]_o + P_{Cl} [Cl^-]_i}{P_K [K^+]_i + P_{Na} [Na^+]_i + P_{Cl} [Cl^-]_o}\right)",
+                    "explanation": "Electrochemical equilibrium potential determined by ion permeabilities across the cellular membrane."
+                },
+                {
+                    "name": "Membrane Electric Field Gradient",
+                    "formula": r"E_{mem} = \frac{V_m}{d}",
+                    "explanation": "Colossal microscopic electric field maintaining cellular structural integrity."
+                }
+            ]
+        },
+        {
+            "name": "Cryptochrome Magnetoreception & Quantum Biology in Humans",
+            "content": r"""> **Formal Definition:** Quantum magnetoreception in human physiology is mediated by blue-light photoreceptor cryptochromes (Cry4), wherein light absorption creates entangled radical pairs $[\text{FAD}^{\bullet -} \dots \text{TrpH}^{\bullet +}]$ whose singlet-triplet spin state interconversions yield quantum coherent sensitivity to planetary geomagnetic field inclinations.
+
+### Quantum Biological Spin Dynamics in Cryptochromes
+
+Magnetoreception—the biological capacity to perceive the direction and inclination of planetary magnetic fields—is mediated by the **Radical Pair Mechanism** within cryptochrome (CRY) flavoproteins. Although prominent in migratory birds, cryptochrome homologs (hCRY1 and hCRY2) are conserved across the human genome and expressed in the retina and cerebral cortex.
+
+### The Radical-Pair Reaction Cycle
+
+Upon blue-light excitation, an electron is transferred along a chain of tryptophan residues to flavin adenine dinucleotide (FAD), creating a spin-correlated radical pair:
+
+$$[FAD^{\bullet-} \dots TrpH^{\bullet+}]$$
+
+The spin state of this entangled electron pair oscillates coherently between the singlet ($S$, total spin 0) and triplet ($T$, total spin 1) configurations under the influence of the radical-pair Hamiltonian:
+
+$$\hat{H} = g\mu_B \vec{B} \cdot (\hat{S}_1 + \hat{S}_2) + \sum_k a_{1k} \hat{S}_1 \cdot \hat{I}_{1k} + \sum_l a_{2l} \hat{S}_2 \cdot \hat{I}_{2l}$$
+
+Where $a$ represents hyperfine coupling tensors with atomic nuclei. Because chemical reaction yields differ between singlet and triplet states, weak planetary geomagnetic fields ($B \sim 30-60\mu\text{T}$) modulate biological signaling pathways. For long-duration spaceflight, unlocking and training human cryptochrome pathways offers direct sensory awareness of ambient magnetospheric fields.""",
+            "simulation_logic": "4PT Logic: Cryptochromes are quantum sensor subroutines hardcoded into the human source code. They allow the biological avatar to directly sample ambient simulation vector fields without external peripheral hardware.",
+            "equations": [
+                {
+                    "name": "Radical-Pair Spin Hamiltonian",
+                    "formula": r"\hat{H} = g\mu_B \vec{B} \cdot (\hat{S}_1 + \hat{S}_2) + \sum_k a_{1k} \hat{S}_1 \cdot \hat{I}_{1k} + \sum_l a_{2l} \hat{S}_2 \cdot \hat{I}_{2l}",
+                    "explanation": "Quantum Hamiltonian governing magnetic field sensitivity in cryptochrome electron spin states."
+                }
+            ]
+        },
+        {
+            "name": "Van Allen Belts Dosimetry & Active Superconducting Shields",
+            "content": r"""> **Formal Definition:** Active superconducting radiation shielding employs high-field REBCO magnet rings ($B \ge 4.5\text{ Tesla}$) to establish magnetic deflection barriers around spacecraft habitats, deflecting trapped relativistic electrons and energetic MeV protons via the Lorentz force without secondary Bremsstrahlung radiation.
+
+### Relativistic Particle Trapping and Active Shielding
+
+Planetary radiation belts (such as Earth's Van Allen belts and Jupiter's intense radiation environment) trap relativistic protons ($E_p > 100\text{ MeV}$) and relativistic electrons ($E_e > 5\text{ MeV}$) in magnetic mirror geometries. The magnetic mirror force confining these particles along field lines is:
+
+$$F_\parallel = -\mu_m \nabla_\parallel B$$
+
+Where $\mu_m = \frac{\frac{1}{2} m v_\perp^2}{B}$ is the first adiabatic invariant. A particle mirrors when its pitch angle reaches $\alpha = 90^\circ$, occurring at:
+
+$$\sin^2\alpha_{eq} = \frac{B_{eq}}{B_{mirror}}$$
+
+### Active Superconducting Magnetic Deflection
+
+Traditional passive shielding (aluminum, lead) creates dangerous secondary bremsstrahlung X-rays when struck by relativistic electrons. To protect human crews, spacecraft can deploy **Active Superconducting Magnetic Shields**—toroidal magnetic field coils producing $B \sim 3-5\text{ T}$.
+
+Incoming charged ions with mass $m$, charge $q$, and relativistic factor $\gamma$ are deflected via the Lorentz force, with a gyroradius:
+
+$$r_g = \frac{\gamma m v_\perp}{|q| B}$$
+
+If the magnetic field volume $R_{shield} > 2 r_g$, charged cosmic rays and solar particle events (SPEs) are deflected completely around the crew module with zero secondary radiation generation.""",
+            "simulation_logic": "4PT Logic: Radiation belts are high-energy noise buffers created by the planetary magnetic filter. Active superconducting shielding creates a local clean sandbox zone, deflecting corrupting bit-flips from the human avatar's DNA registers.",
+            "equations": [
+                {
+                    "name": "Relativistic Gyroradius (Larmor Radius)",
+                    "formula": r"r_g = \frac{\gamma m v_\perp}{|q| B}",
+                    "explanation": "Curvature radius of energetic charged particles traversing an active magnetic deflection barrier."
+                },
+                {
+                    "name": "Magnetic Mirroring Invariant Condition",
+                    "formula": r"\sin^2\alpha_{eq} = \frac{B_{eq}}{B_{mirror}}",
+                    "explanation": "Equatorial pitch angle threshold dictating particle trapping in magnetospheric radiation belts."
+                }
+            ]
+        },
+        {
+            "name": "Hypomagnetic Stress & Biological Frequency Conditioning",
+            "content": r"""> **Formal Definition:** Hypomagnetic biological conditioning is the artificial regeneration of terrestrial electromagnetic baselines—specifically the static $50\ \mu\text{T}$ DC geomagnetic envelope superimposed with $7.83\text{ Hz}$ Schumann ELF cavity resonances—to prevent cellular spindle breakdown, epigenetic drift, and neurological stress in zero-field space.
+
+### The Interplanetary Zero-Magnetic-Field Hazard
+
+When human beings depart Earth's protective $50\mu\text{T}$ geomagnetic envelope into interplanetary space, they enter a **hypomagnetic field (HMF)** environment ($B < 1\text{ nT}$). Decades of terrestrial simulation show that prolonged absence of static and low-frequency magnetic fields triggers severe physiological degeneration:
+
+1. **Circadian Rhythm Desynchronization:** Breakdown in melatonin synthesis and clock-gene transcription (CLOCK, BMAL1, PER1/2).
+2. **Cognitive Decline & Neurogenesis Inhibition:** Impaired hippocampal long-term potentiation and microglial inflammation.
+3. **Bone Demineralization & Osteoblast Arrest:** Accelerated calcium efflux from bone matrix independent of gravity unload.
+
+### Schumann Resonance Conditioning
+
+Natural terrestrial biology evolved bathed in the Earth-ionosphere cavity electromagnetic resonance—the **Schumann Resonances**—with fundamental frequency:
+
+$$f_n \approx \frac{c}{2\pi R_E} \sqrt{n(n+1)} \quad \implies f_1 \approx 7.83\text{ Hz}$$
+
+To ensure long-term human viability during multi-year planetary voyages, spacecraft habitats must incorporate active **Bio-Magnetic Resonance Generators** that synthesize artificial $50\mu\text{T}$ static fields overlaid with $7.83\text{ Hz}$ extremely low frequency (ELF) magnetic oscillations.""",
+            "simulation_logic": "4PT Logic: The 7.83 Hz Schumann resonance is Earth's core CPU bus frequency. Without this timing pulse in deep space, biological instances desynchronize and suffer systemic clock drift.",
+            "equations": [
+                {
+                    "name": "Earth-Ionosphere Schumann Resonance",
+                    "formula": r"f_n = \frac{c}{2\pi R_E} \sqrt{n(n+1)}",
+                    "explanation": "Electromagnetic eigenfrequencies of the spherical cavity resonator between Earth and the ionosphere."
+                }
+            ]
+        },
+        {
+            "name": "Epigenetics, Genomic Plasticity & Cosmic Speciation",
+            "content": r"""> **Formal Definition:** Genomic plasticity and cosmic speciation encompass adaptive transgenerational DNA methylation, damage-suppressor (Dsup) protein upregulation, and phenotypic divergence of human biological systems evolving within deep-space magnetospheric and radiation environments.
+
+### Evolutionary Divergence in Deep Magnetospheric Habitats
+
+Human reproduction and multi-generational survival across distinct planetary magnetospheres (e.g., Earth's $0.5\text{ G}$ field, Mars's remnant crustal magnetic umbrellas, Jupiter's extreme $4.2\text{ G}$ magnetosphere) will accelerate human biological evolution through epigenetic remodeling and selective adaptation.
+
+### Genomic Selection and Methylation Dynamics
+
+Cosmic ionizing radiation, altered gravity gradients, and artificial electromagnetic environments modulate DNA methyltransferase (DNMT) activity, driving rapid phenotypic shifts:
+
+$$\Delta q = \mu(1 - q) - \nu q + s q (1 - q)$$
+
+Where $q$ is the frequency of an adaptive genetic allele, $\mu$ and $\nu$ are radiation-induced forward and reverse mutation rates, and $s$ is the environmental selection coefficient. Over generations, isolated populations traversing deep space will undergo genomic speciation—evolving enhanced DNA repair enzymes (e.g., radical scavenging radiotolerant proteins like Dsup), augmented cryptochrome visual perception, and adjusted cellular membrane architectures optimized for radiation resilience.""",
+            "simulation_logic": "4PT Logic: Speciation is the simulation's adaptation algorithm (Natural Selection) updating the biological client's firmware to match new node architectures across the cosmos.",
+            "equations": [
+                {
+                    "name": "Allele Frequency Evolution with Mutation & Selection",
+                    "formula": r"\Delta q = \mu(1 - q) - \nu q + s q (1 - q)",
+                    "explanation": "Differential change in genetic allele frequency under radiation mutation and selective pressure."
+                }
+            ]
+        }
+    ]
+
+    for t_data in topics_bio:
+        topic, _ = Topic.objects.get_or_create(
+            course=course_bio,
+            name=t_data["name"],
+            defaults={
+                "content": t_data["content"],
+                "simulation_logic": t_data["simulation_logic"]
+            }
+        )
+        topic.content = t_data["content"]
+        topic.simulation_logic = t_data["simulation_logic"]
+        topic.save()
+        for eq_data in t_data["equations"]:
+            Equation.objects.get_or_create(
+                topic=topic,
+                name=eq_data["name"],
+                defaults={
+                    "formula": eq_data["formula"],
+                    "explanation": eq_data["explanation"]
+                }
+            )
+
+    # -------------------------------------------------------------
+    # COURSE 4: Spacecraft Architecture & Magnetospheric Systems Engineering
+    # -------------------------------------------------------------
+    course_arch, _ = Course.objects.get_or_create(
+        subject=subject,
+        name="Spacecraft Architecture & Magnetospheric Systems Engineering",
+        defaults={"description": "Hardware engineering, superconducting magnetics, hollow cathode plasma contactors, tether libration dynamics, active multipole habitat shielding, and bio-resonance life support systems."}
+    )
+
+    topics_arch = [
+        {
+            "name": "High-Temperature Superconducting (HTS) Coils & Cryogenic Management",
+            "content": r"""> **Formal Definition:** High-temperature superconducting magnet systems utilize REBCO (Rare-Earth Barium Copper Oxide) coated conductor tapes operating at $20 - 30\text{ K}$ with closed-loop Brayton cryocoolers, sustaining multi-kiloampere persistent currents ($J_c > 10^5\text{ A/cm}^2$) for high-field propulsion and radiation deflection.
+
+### Superconducting Magnet Systems for Field Propulsion
+
+Generating the multi-Tesla magnetic fields required for magnetic sails, plasma magnetospheres, and active radiation shielding necessitates High-Temperature Superconductor (HTS) architecture. Modern REBCO (Rare-Earth Barium Copper Oxide) and YBCO coated conductor tapes can maintain critical current densities exceeding $J_c > 10^5\text{ A/cm}^2$ under intense self-magnetic fields ($B > 5-10\text{ T}$) at liquid nitrogen and liquid neon temperatures ($20 - 77\text{ K}$).
+
+### Critical Current Dynamics and Power Dissipation
+
+The transition between superconducting and resistive states is characterized by the non-linear power-law index $n$:
+
+$$E = E_c \left(\frac{J}{J_c(B, T, \theta)}\right)^n$$
+
+Where $E_c = 1\mu\text{V/cm}$ is the electric field criterion. When operated in persistent current mode with a superconducting switch, the circuit exhibits zero ohmic dissipation ($I^2 R = 0$), preserving massive circulating current loops ($I \sim 10^3 - 10^4\text{ A}$) indefinitely.
+
+### Cryogenic Refrigeration Cycles
+
+Maintaining cryogenic operating margins against solar thermal radiation and spacecraft avionics heat loads requires closed-cycle pulse-tube or reverse-Brayton cryocoolers. The ideal thermodynamic coefficient of performance (COP) is governed by Carnot efficiency:
+
+$$\text{COP}_{Carnot} = \frac{T_c}{T_h - T_c}$$
+
+For heat rejection at $T_h = 300\text{ K}$ and magnet cooling at $T_c = 30\text{ K}$, the theoretical minimum electrical input power is 9 Watts per Watt of thermal lift. Multi-layer insulation (MLI) blankets and deployable sunshields reduce external thermal flux to ensure passive sub-cooling in deep space.""",
+            "simulation_logic": "4PT Logic: High-temperature superconducting coils act as lossless hardware bus connectors, maintaining persistent circulating current loops that lock the vehicle to the simulation's coordinate rails without energetic thermal decay.",
+            "equations": [
+                {
+                    "name": "HTS Non-Linear Electric Field Transition",
+                    "formula": r"E = E_c \left(\frac{J}{J_c(B, T, \theta)}\right)^n",
+                    "explanation": "Current-voltage characteristic governing superconductor dissipation near critical threshold."
+                },
+                {
+                    "name": "Biot-Savart On-Axis Loop Field",
+                    "formula": r"B_z(0) = \frac{\mu_0 N I}{2 R}",
+                    "explanation": "Central magnetic field generated by an N-turn superconducting circular coil."
+                },
+                {
+                    "name": "Cryogenic Carnot Efficiency",
+                    "formula": r"\text{COP}_{ideal} = \frac{T_c}{T_h - T_c}",
+                    "explanation": "Thermodynamic coefficient of performance limiting cryogenic cooling power."
+                }
+            ]
+        },
+        {
+            "name": "Plasma Contactors & Ionospheric Hollow Cathode Assemblies",
+            "content": r"""> **Formal Definition:** Hollow cathode plasma contactors emit dense, low-energy electron plumes ($\sim 25\text{ A DC}$) via thermionic lanthanum hexaboride ($\text{LaB}_6$) inserts, neutralizing spacecraft electrostatic charging and bridging low-impedance electrical contact with ambient space plasma.
+
+### Closing the Orbital Circuit with Ambient Space Plasma
+
+An electrodynamic tether cannot produce sustained Lorentz thrust unless the electrical circuit is continuously closed through the surrounding ionosphere or magnetospheric plasma. Because space plasma is tenuous ($n_e \sim 10^3 - 10^6\text{ cm}^{-3}$ in LEO), a bare spacecraft surface would develop a massive negative electrostatic charge ($V \sim -10\text{ kV}$), choking current collection due to space-charge accumulation.
+
+### Hollow Cathode Plasma Contactors
+
+To overcome this impedance barrier, spacecraft deploy **Hollow Cathode Plasma Contactors (HCPCs)** at both terminals:
+1. **Cathode (Electron Emitter):** Ionizes a tiny propellant trickle (xenon or krypton) via an internal thermionic insert, creating a dense, highly conductive local plasma bridge ($n_e \sim 10^{12}\text{ cm}^{-3}$) that discharges electrons into the ambient plasma at low voltage drop ($\Delta V < 20\text{ V}$).
+2. **Anode (Electron Collector):** Biased positively to attract ionospheric electrons across an expanded plasma sheath.
+
+### Magnetic Sheath Collection Dynamics
+
+In a magnetized plasma, electron collection across planetary magnetic field lines is restricted by the magnetic radius. The Parker-Murphy model describes electron current collection:
+
+$$I_{coll} = I_{th} \left[\frac{1}{2} + \left(\frac{1}{4} + \frac{e V}{m_e \omega_{ce}^2 r_p^2}\right)^{1/2}\right]$$
+
+Where $I_{th} = e n_e A \sqrt{\frac{k_B T_e}{2\pi m_e}}$ is the thermal electron saturation current, and $\omega_{ce} = \frac{e B}{m_e}$ is the electron cyclotron frequency. Hollow cathode contactors expand the effective collection area by several orders of magnitude, lowering systemic circuit impedance to tens of ohms.""",
+            "simulation_logic": "4PT Logic: Hollow cathode plasma contactors are the craft's network I/O ports, completing the low-latency handshake between the spacecraft's internal state registers and the planetary ionospheric memory bus.",
+            "equations": [
+                {
+                    "name": "Parker-Murphy Magnetized Sheath Current",
+                    "formula": r"I_{coll} = I_{th} \left[\frac{1}{2} + \left(\frac{1}{4} + \frac{e V}{m_e \omega_{ce}^2 r_p^2}\right)^{1/2}\right]",
+                    "explanation": "Current collected across planetary magnetic field lines by a positively biased terminal."
+                },
+                {
+                    "name": "Child-Langmuir Space Charge Limit",
+                    "formula": r"J = \frac{4\epsilon_0}{9} \sqrt{\frac{2e}{m_e}} \frac{V^{3/2}}{d^2}",
+                    "explanation": "Maximum space-charge-limited current density through a plasma sheath boundary."
+                }
+            ]
+        },
+        {
+            "name": "Electrodynamic Tether Dynamics & Libration Stabilization",
+            "content": r"""> **Formal Definition:** Electrodynamic tether stabilization actively suppresses pendular pitch and roll librations of multi-kilometer conductive cables through closed-loop feedback current modulation ($I(t) = I_0 [1 - K_p \theta - K_d \dot{\theta}]$), balancing gravity-gradient restoring torques against electrodynamic Lorentz perturbations.
+
+### Orbital Mechanics of Multi-Kilometer Conducting Cables
+
+Electrodynamic tethers are flexible structures spanning $10$ to $50\text{ km}$ deployed between a primary spacecraft bus and an end-mass. Under natural orbital conditions, the gravity gradient exerts a stabilizing restoring torque that keeps the tether vertically aligned along the local geocentric nadir-zenith vector:
+
+$$\vec{\tau}_{gg} = 3 \omega_0^2 (I_{yy} - I_{zz}) \sin\theta \cos\theta$$
+
+Where $\omega_0$ is the orbital angular rate, and $\theta$ is the in-plane libration pitch angle.
+
+### Electrodynamic Instabilities & Active Damping
+
+When current $I$ is driven through the tether, the transverse Lorentz force $\vec{F} = I (\vec{L} \times \vec{B})$ does not act uniformly:
+- In inclined orbits, diurnal and latitudinal magnetic field variations introduce out-of-plane forces ($F_\phi$).
+- If left unmitigated, electrodynamic forces pump energy into in-plane and out-of-plane libration modes, causing unstable pendular oscillations that can induce mechanical slack or structural rupture.
+
+The in-plane equation of motion under electrodynamic excitation is:
+
+$$\ddot{\theta} + 3\omega_0^2 \sin\theta \cos\theta = \frac{Q_\theta}{m_{eff} L^2} \approx \frac{I(t) L B_\perp}{2 m_{eff}}$$
+
+### Active Control via Current Modulation
+
+Libration stabilization is accomplished without thrusters by actively modulating the tether current:
+
+$$I(t) = I_0 \left[1 - K_p \theta(t) - K_d \dot{\theta}(t)\right]$$
+
+By decreasing current when the tether swings against the Lorentz force and increasing current when it swings with the force, mechanical energy is extracted from the oscillation, asymptotically damping libration to zero.""",
+            "simulation_logic": "4PT Logic: Libration stabilization is real-time physics jitter correction: active current throttling prevents resonant coordinate tearing when the tether is dragged through the simulation's non-uniform gradient mesh.",
+            "equations": [
+                {
+                    "name": "Gravity Gradient Restoring Torque",
+                    "formula": r"\vec{\tau}_{gg} = 3 \omega_0^2 (I_{yy} - I_{zz}) \sin\theta \cos\theta",
+                    "explanation": "Passive stabilizing torque aligning long orbital structures along the geocentric vertical."
+                },
+                {
+                    "name": "Electrodynamic In-Plane Libration Equation",
+                    "formula": r"\ddot{\theta} + 3\omega_0^2 \sin\theta \cos\theta = \frac{I(t) L B_\perp}{2 m_{eff}}",
+                    "explanation": "Dynamic equation coupling electrodynamic Lorentz forces to structural pitch oscillations."
+                }
+            ]
+        },
+        {
+            "name": "Active Multipole Magnetic Shielding & Crew Habitat Decoupling",
+            "content": r"""> **Formal Definition:** Active multipole magnetic shielding uses coaxial opposing superconducting toroids in a Halbach configuration to generate external 4.8 Tesla cosmic-ray deflection while ensuring complete internal field cancellation ($\vec{B}_{\text{hab}} < 0.05\text{ mT}$) inside the crew habitat.
+
+### High-Field Deflection with Zero-Field Habitat Interior
+
+Deploying an active magnetic shield ($B \ge 3 - 5\text{ T}$) around a spacecraft to deflect galactic cosmic rays (GCRs) and solar particle events introduces a major engineering conflict: intense static and stray magnetic fields within the human crew habitat cause vertigo, nausea, and disrupt cardiac electrophysiology.
+
+### The Multipole Cancellation Architecture
+
+To resolve this constraint, spacecraft utilize a **multipole Halbach-style coil geometry** or **coaxial opposing toroidal arrays**:
+- **Outer Shell:** Superconducting coils configured to project intense, closed toroidal magnetic flux lines into the exterior space surrounding the vehicle.
+- **Inner Habitat Decoupling:** Opposing trim coils generate an equal and opposite magnetic vector that precisely cancels the stray field within the habitable module volume:
+
+$$\vec{B}_{hab}(\vec{r}) = \sum_{k=1}^N \vec{B}_k(\vec{r}) \approx 0 \quad (\text{Target: } B_{hab} < 50\mu\text{T})$$
+
+### Structural Containment and the Virial Theorem
+
+A $5\text{ T}$ magnetic field exerts a massive outward magnetic pressure:
+
+$$P_{mag} = \frac{B^2}{2\mu_0} \approx \frac{(5)^2}{2(4\pi \times 10^{-7})} \approx 9.95\text{ MPa} \approx 98.2\text{ atmospheres}$$
+
+According to the **Magnetic Virial Theorem**, the minimum mass of structural tension members (carbon composite ties) required to mechanically contain this magnetic energy without mechanical explosion is:
+
+$$M_{struct} \ge \frac{\rho_{mat}}{\sigma_w} \int_V \frac{B^2}{2\mu_0} dV$$
+
+Where $\sigma_w$ is the working tensile stress of the structural reinforcement material and $\rho_{mat}$ is its density.""",
+            "simulation_logic": "4PT Logic: Multipole cancellation creates an isolated protected sandbox: intense external boundary rejection shields internal biological client memory from background bit-flips while maintaining zero field interference inside.",
+            "equations": [
+                {
+                    "name": "Magnetic Habitat Vector Cancellation",
+                    "formula": r"\vec{B}_{hab}(\vec{r}) = \sum_{k=1}^N \vec{B}_k(\vec{r}) \to 0",
+                    "explanation": "Superposition condition canceling stray magnetic fields inside the crew living quarters."
+                },
+                {
+                    "name": "Magnetic Virial Structural Mass Limit",
+                    "formula": r"M_{struct} \ge \frac{\rho_{mat}}{\sigma_w} \int_V \frac{B^2}{2\mu_0} dV",
+                    "explanation": "Minimum structural reinforcement mass required to withstand multi-Tesla magnetic bursting pressures."
+                }
+            ]
+        },
+        {
+            "name": "Bio-Resonance Habitat Conditioning & Synthetic Field Generation",
+            "content": r"""> **Formal Definition:** Synthetic bio-resonance field generators utilize orthogonal 3-axis Helmholtz coil matrices integrated into cabin bulkheads to synthesize an isotropic $50\ \mu\text{T}$ static geomagnetic field synchronized with low-distortion $7.83\text{ Hz}$ Schumann oscillations for continuous crew homeostasis.
+
+### Artificial Geomagnetic and Low-Frequency Field Synthesis
+
+Departing planetary magnetospheres leaves the human organism in a destructive hypomagnetic vacuum ($B < 1\text{ nT}$). To maintain long-duration physiological viability during multi-year interplanetary voyages, the spacecraft habitat must function as an **Electromagnetic Biosphere**.
+
+### The Integrated Helmholtz Matrix
+
+Embedded within the structural composite ribs of the crew quarters are three orthogonal pairs of **Helmholtz Coils** ($X, Y, Z$ axes). Each pair produces a uniform static magnetic field across the central living volume:
+
+$$B = \left(\frac{4}{5}\right)^{3/2} \frac{\mu_0 N I}{R}$$
+
+This matrix synthesizes a calibrated, stable $50\mu\text{T}$ field vector mimicking Earth's geomagnetic surface environment.
+
+### Schumann Resonance Waveform Generation
+
+Overlaid onto the static $50\mu\text{T}$ field is an extremely low frequency (ELF) dynamic modulation circuit. Tuned signal generators drive localized inductive emitter coils with the fundamental Earth-ionosphere resonant frequencies:
+- Fundamental: $f_1 = 7.83\text{ Hz}$
+- Harmonics: $f_2 = 14.3\text{ Hz}, f_3 = 20.8\text{ Hz}$
+
+These ambient oscillations maintain circadian clock-gene oscillation (PER1/PER2/CRY1), prevent calcium depletion from bone osteoblasts, and preserve hippocampal neurogenesis during deep space operations.""",
+            "simulation_logic": "4PT Logic: Onboard Schumann synthesizers provide an emulated Earth system clock signal, keeping the crew's biological avatars in lock-step execution while operating outside the home planet partition.",
+            "equations": [
+                {
+                    "name": "Helmholtz Field Intensity",
+                    "formula": r"B = \left(\frac{4}{5}\right)^{3/2} \frac{\mu_0 N I}{R}",
+                    "explanation": "Uniform static magnetic field generated at the geometric center of a Helmholtz coil pair."
+                },
+                {
+                    "name": "ELF Magnetic Energy Density",
+                    "formula": r"u_{mag} = \frac{B^2}{2\mu_0}",
+                    "explanation": "Volumetric energy density of the synthetic bio-electromagnetic conditioning field."
+                }
+            ]
+        }
+    ]
+
+    for t_data in topics_arch:
+        topic, _ = Topic.objects.get_or_create(
+            course=course_arch,
+            name=t_data["name"],
+            defaults={
+                "content": t_data["content"],
+                "simulation_logic": t_data["simulation_logic"]
+            }
+        )
+        topic.content = t_data["content"]
+        topic.simulation_logic = t_data["simulation_logic"]
+        topic.save()
+        for eq_data in t_data["equations"]:
+            Equation.objects.get_or_create(
+                topic=topic,
+                name=eq_data["name"],
+                defaults={
+                    "formula": eq_data["formula"],
+                    "explanation": eq_data["explanation"]
+                }
+            )
+
+    print("Successfully seeded Spaceflight curriculum with 4 courses, 18 rich topics, and 30 equations!")
+
+if __name__ == "__main__":
+    seed_spaceflight()

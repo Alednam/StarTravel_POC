@@ -1,0 +1,85 @@
+{% extends 'science_engine/base.html' %}
+
+{% block content %}
+<div class="flex flex-col h-full w-full bg-sci-base overflow-hidden">
+    
+    <!-- Header -->
+    <div class="p-8 border-b border-slate-700 bg-slate-800/50 backdrop-blur-sm">
+        <h1 class="text-3xl font-bold text-white tracking-wide flex items-center gap-3">
+            <div class="p-2 bg-rose-500/20 rounded-lg border border-rose-500/50">
+                <svg class="w-8 h-8 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            Research Branch: Gap Resolution
+        </h1>
+        <p class="text-slate-400 mt-2 max-w-2xl">
+            This module aggregates identified limitations from all loaded theories and cross-references the entire knowledge base to propose potential solutions, mechanisms, or bridges.
+        </p>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="flex-1 overflow-y-auto p-8 scroll-smooth">
+        <div class="grid grid-cols-1 gap-8 max-w-6xl mx-auto">
+            
+            {% for item in gaps_report %}
+            <div class="bg-sci-surface border border-slate-700 rounded-xl overflow-hidden shadow-xl transition-all duration-300 hover:border-slate-600">
+                <!-- Gap Source -->
+                <div class="px-6 py-4 bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700 flex justify-between items-start">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[10px] uppercase font-bold text-rose-400 tracking-widest bg-rose-900/20 px-2 py-1 rounded border border-rose-900/30">Open Problem</span>
+                            <span class="text-xs text-slate-500 font-mono">Source: {{ item.source_theory }}</span>
+                        </div>
+                        <h3 class="text-lg font-medium text-slate-200 italic">"{{ item.gap_text }}"</h3>
+                    </div>
+                </div>
+
+                <!-- Proposed Solutions -->
+                <div class="p-6 bg-slate-900/50">
+                    <h4 class="text-xs font-bold text-sci-accent uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        Logic Engine Proposals
+                    </h4>
+
+                    {% if item.solutions %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for sol in item.solutions %}
+                                <div class="p-4 rounded-lg border {% if sol.confidence == 'High' %}bg-emerald-900/10 border-emerald-500/30{% else %}bg-indigo-900/10 border-indigo-500/30{% endif %} hover:bg-slate-800 transition-colors cursor-pointer group relative">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <span class="text-[10px] font-bold uppercase {% if sol.confidence == 'High' %}text-emerald-400{% else %}text-indigo-400{% endif %}">
+                                            Via {{ sol.theory }} ({{ sol.type }})
+                                        </span>
+                                        {% if sol.confidence == 'High' %}
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50"></span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-sm text-slate-300 group-hover:text-white transition-colors leading-relaxed">
+                                        {{ sol.content }}
+                                    </p>
+                                    
+                                    <!-- Hover Action -->
+                                    <a href="{% url 'theory_detail' sol.theory %}" class="absolute inset-0 z-10" title="View Theory"></a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="p-4 rounded-lg border border-dashed border-slate-700 bg-slate-800/30 text-center">
+                            <p class="text-sm text-slate-500">No direct solutions found in current knowledge base.</p>
+                            <p class="text-xs text-slate-600 mt-1">Recommendation: Scrape more external laws in related domains.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+                <div class="text-center py-20">
+                    <div class="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-300">All Systems Nominal</h2>
+                    <p class="text-slate-500 mt-2">No gaps identified in the current theory set.</p>
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

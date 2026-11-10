@@ -1,0 +1,39 @@
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Python / Byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+
+# Django & Databases
+db.sqlite3*
+*.sqlite3*
+staticfiles/
+media/
+
+# Logs
+*.log
+server.log
+
+# Runtime & PIDs
+*.pid
+.server.pid
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

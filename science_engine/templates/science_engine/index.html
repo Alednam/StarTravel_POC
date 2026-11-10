@@ -1,0 +1,373 @@
+{% extends 'science_engine/base.html' %}
+
+{% block extra_head %}
+    <style>
+        /* 3D Graph Container */
+        #network-container canvas {
+            outline: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Sidebar -->
+    <aside class="w-80 bg-sci-surface border-r border-slate-700 flex flex-col shrink-0 z-20 shadow-xl overflow-hidden">
+        <div class="p-4 border-b border-slate-700 flex flex-col gap-4">
+            <h2 class="text-sci-accent font-bold uppercase tracking-wider text-sm flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                Known Theories
+            </h2>
+            <div class="h-32 overflow-y-auto bg-slate-900/50 border border-slate-700 rounded-md p-2">
+                <ul class="text-xs space-y-1">
+                    {% for theory in loaded_theories %}
+                        <li class="flex items-center text-sci-text hover:text-white transition-colors">
+                            <span class="w-1.5 h-1.5 bg-sci-accent rounded-full mr-2"></span>
+                            {{ theory }}
+                        </li>
+                    {% empty %}
+                        <li class="text-sci-muted italic p-2">No theories loaded.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Source Node Monitor -->
+        <div class="p-4 border-b border-slate-700 space-y-4">
+            <h2 class="text-sci-accent font-bold uppercase tracking-wider text-[10px] flex items-center justify-between">
+                <span>Source Node Monitor</span>
+                <span class="text-green-500 animate-pulse">LIVE</span>
+            </h2>
+            <div class="grid grid-cols-2 gap-2">
+                {% for theory in loaded_theories|slice:":4" %}
+                <div class="bg-slate-900/80 p-2 rounded border border-slate-700 flex flex-col gap-1">
+                    <div class="text-[9px] text-slate-400 font-bold truncate uppercase">{{ theory }}</div>
+                    <div class="flex items-center justify-between">
+                        <div class="w-1.5 h-1.5 bg-sci-highlight rounded-full"></div>
+                        <div class="text-[8px] text-sci-highlight font-mono">NODE_ACTIVE</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <a href="{% url 'theory_list' %}" class="block text-center py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded text-[9px] font-bold text-slate-300 uppercase tracking-widest transition-all">
+                Explore Theory Library &rarr;
+            </a>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-6">
+            
+            <!-- Map Filter (Always Visible) -->
+            <div class="group">
+                <h3 class="text-xs font-semibold text-sci-muted uppercase mb-2 group-hover:text-amber-400 transition-colors">Visualization Controls</h3>
+                <div class="bg-amber-900/20 p-3 rounded-lg border border-amber-800 hover:border-amber-500 transition-colors duration-300">
+                    <label for="limitInput" class="block text-[10px] text-amber-200/70 mb-1">Max Graph Nodes</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="limitInput" value="50" min="10" max="500" step="10" class="flex-1 bg-slate-900 border border-slate-600 text-amber-100 text-xs rounded px-2 py-1 focus:outline-none focus:border-amber-500 transition-colors">
+                        <button onclick="reloadMap()" class="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-slate-900 text-xs font-bold rounded transition-colors shadow-sm">
+                            Apply
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Tools (Collapsible) -->
+            <details class="group open:bg-slate-800/30 open:p-3 open:rounded-lg open:border open:border-slate-700 transition-all">
+                <summary class="cursor-pointer text-xs font-semibold text-sci-muted uppercase mb-2 flex items-center justify-between hover:text-white">
+                    <span>Manage Data</span>
+                    <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </summary>
+                
+                <div class="space-y-6 pt-2">
+                    <!-- Upload Box -->
+                    <div class="group/upload">
+                        <h3 class="text-[10px] font-semibold text-slate-500 uppercase mb-2 group-hover/upload:text-sci-highlight transition-colors">Local Ingestion</h3>
+                        <form method="post" enctype="multipart/form-data" class="bg-slate-700/30 p-3 rounded-lg border border-slate-700 hover:border-sci-highlight transition-colors duration-300">
+                            {% csrf_token %}
+                            <label class="block mb-2 text-[10px] text-sci-text">Upload .md Theory File</label>
+                            <input type="file" name="file" class="block w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-sci-highlight file:text-slate-900 hover:file:bg-sky-300 mb-3 cursor-pointer">
+                            <button type="submit" name="upload_submit" class="w-full py-1.5 bg-sci-surface hover:bg-sci-highlight hover:text-slate-900 border border-sci-highlight text-sci-highlight text-xs font-bold rounded transition-all duration-200 shadow-sm flex items-center justify-center gap-2">
+                                <span>Upload & Train</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Web Research -->
+                    <div class="group/research">
+                        <h3 class="text-[10px] font-semibold text-slate-500 uppercase mb-2 group-hover/research:text-sci-success transition-colors">External Knowledge</h3>
+                        <div class="bg-emerald-900/20 p-3 rounded-lg border border-emerald-800 hover:border-emerald-500 transition-colors duration-300">
+                            <form method="post">
+                                {% csrf_token %}
+                                <button type="submit" name="scrape_submit" class="w-full py-1.5 bg-emerald-900/40 hover:bg-emerald-500 hover:text-slate-900 border border-emerald-500 text-emerald-400 text-xs font-bold rounded transition-all duration-200 shadow-sm flex items-center justify-center gap-2">
+                                    <span>Harvest Laws</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </details>
+            
+        </div>
+
+        <!-- View Toggle -->
+        <div class="p-4 border-t border-slate-700 bg-slate-800/50 backdrop-blur-sm">
+            <div class="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-lg">
+                <button onclick="switchTab('map')" id="tab-map" class="tab-btn px-3 py-2 text-xs font-medium rounded-md transition-all duration-200 flex items-center justify-center gap-2 bg-sci-highlight text-slate-900 shadow-sm">
+                    <span>Theory Map</span>
+                </button>
+                <button onclick="switchTab('chat')" id="tab-chat" class="tab-btn px-3 py-2 text-xs font-medium rounded-md text-slate-400 hover:text-white transition-all duration-200 flex items-center justify-center gap-2">
+                    <span>Consultation Chat</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main View Area -->
+    <main class="flex-1 relative bg-sci-base flex flex-col min-w-0">
+        
+        <!-- Map View -->
+        <div id="map-view" class="view-section flex-1 h-full w-full relative">
+            <div class="absolute top-4 right-4 z-10 pointer-events-none">
+                <div class="bg-slate-900/80 backdrop-blur border border-slate-700 p-3 rounded-lg shadow-2xl">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="w-3 h-3 bg-rose-500 rounded-sm rotate-45"></span>
+                        <span class="text-xs text-rose-200 font-mono">Theories</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 bg-sky-500 rounded-full border-2 border-slate-900"></span>
+                        <span class="text-xs text-sky-200 font-mono">Axioms</span>
+                    </div>
+                </div>
+            </div>
+            <div id="network-container" class="w-full h-full"></div>
+        </div>
+
+        <!-- Chat View -->
+        <div id="chat-view" class="view-section hidden flex-col h-full bg-sci-base relative">
+            
+            <!-- Chat Header -->
+            <div class="absolute top-0 left-0 right-0 bg-gradient-to-b from-slate-900 to-transparent p-4 z-10 pointer-events-none h-16"></div>
+
+            <!-- Messages -->
+            <div id="chatHistory" class="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth pt-8 pb-32">
+                {% for msg in chat_history %}
+                    <div class="flex flex-col max-w-3xl mx-auto w-full {% if msg.role == 'user' %}items-end{% elif msg.role == 'system' %}items-center{% else %}items-start{% endif %} animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        
+                        {% if msg.role == 'system' %}
+                            <span class="px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[10px] font-mono rounded-full uppercase tracking-wider mb-4">
+                                {{ msg.text }}
+                            </span>
+                        
+                        {% elif msg.role == 'user' %}
+                            <div class="bg-sci-highlight text-slate-900 px-4 py-3 rounded-2xl rounded-tr-none shadow-lg max-w-[85%] font-medium">
+                                {{ msg.text }}
+                            </div>
+                            <span class="text-[10px] text-slate-500 mt-1 mr-2 font-mono">USER</span>
+
+                        {% else %}
+                            <div class="flex gap-4 max-w-[90%]">
+                                <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center shrink-0 shadow-lg border-2 border-slate-800">
+                                    <span class="text-xs font-bold text-white">AI</span>
+                                </div>
+                                <div>
+                                    <div class="bg-slate-800 border border-slate-700 text-slate-200 px-5 py-4 rounded-2xl rounded-tl-none shadow-md font-mono text-sm leading-relaxed whitespace-pre-wrap">
+                                        {{ msg.text }}
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 mt-1 ml-2 font-mono">DR. GEMINI</span>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                {% empty %}
+                    <div class="flex flex-col items-center justify-center h-full text-slate-600 space-y-4">
+                        <svg class="w-16 h-16 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                        <p class="text-sm">Initiate sequence. Awaiting input...</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Input Area -->
+            <div class="border-t border-slate-700 bg-slate-800 p-4 shrink-0 absolute bottom-0 left-0 right-0 z-20 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.5)]">
+                <div class="max-w-3xl mx-auto w-full">
+                    <form method="post" class="relative flex items-center gap-2">
+                        {% csrf_token %}
+                        <div class="relative flex-1 group">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-slate-500 text-lg font-mono">></span>
+                            </div>
+                            <input type="text" name="query" 
+                                class="block w-full pl-8 pr-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sci-highlight focus:ring-1 focus:ring-sci-highlight transition-all font-mono text-sm shadow-inner group-hover:border-slate-500"
+                                placeholder="Enter logic (A & B), math (2*x), or theory query..." autocomplete="off">
+                        </div>
+                        <button type="submit" name="query_submit" class="px-6 py-3 bg-sci-highlight hover:bg-sky-300 text-slate-900 font-bold rounded-lg transition-all duration-200 shadow-lg hover:shadow-sci-highlight/20 flex items-center gap-2 active:scale-95">
+                            <span>Send</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9-2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </main>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // Auto-scroll logic
+        const chatContainer = document.getElementById("chatHistory");
+        if(chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // View Switching Logic
+        function switchTab(tabName) {
+            // Sections
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('flex'));
+            
+            // Buttons
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-sci-highlight', 'text-slate-900', 'shadow-sm');
+                el.classList.add('text-slate-400');
+            });
+
+            if (tabName === 'chat') {
+                const chatView = document.getElementById('chat-view');
+                chatView.classList.remove('hidden');
+                chatView.classList.add('flex');
+                
+                const btn = document.getElementById('tab-chat');
+                btn.classList.add('bg-sci-highlight', 'text-slate-900', 'shadow-sm');
+                btn.classList.remove('text-slate-400');
+                
+                if(chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            } else {
+                const mapView = document.getElementById('map-view');
+                mapView.classList.remove('hidden');
+                
+                const btn = document.getElementById('tab-map');
+                btn.classList.add('bg-sci-highlight', 'text-slate-900', 'shadow-sm');
+                btn.classList.remove('text-slate-400');
+                
+                loadNetwork();
+            }
+        }
+
+        // 3D Force Graph
+        let Graph = null;
+        let graphDataCache = null;
+
+        // Initial Load
+        window.onload = function() {
+            loadNetwork();
+        };
+
+        function reloadMap() {
+            // Clear cache and reload
+            graphDataCache = null;
+            const container = document.getElementById('network-container');
+            container.innerHTML = ''; // Wipe canvas
+            Graph = null;
+            loadNetwork();
+        }
+        
+        function loadNetwork() {
+            if (Graph !== null) return;
+
+            const limitInput = document.getElementById('limitInput');
+            const limit = limitInput ? limitInput.value : 50;
+
+            fetch(`/api/network-data/?limit=${limit}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Adapt Vis.js format (nodes, edges[from,to]) to D3 format (nodes, links[source,target])
+                                        const adaptedLinks = data.edges.map(e => {
+                                            // Check if it's a structural link or a similarity link
+                                            // Similarity links have a specific color defined in backend
+                                            const isSimilarity = e.color && e.color.color;
+                                            return {
+                                                source: e.from,
+                                                target: e.to,
+                                                // Use cyan for similarity, faint white for structure if no color provided
+                                                color: isSimilarity ? '#38bdf8' : 'rgba(255,255,255,0.1)', 
+                                                title: e.title,
+                                                isSimilarity: !!isSimilarity
+                                            };
+                                        });
+                    
+                                        // Color mapping based on groups
+                                        const groupColors = {
+                                            'center': '#f59e0b',       // Amber
+                                            'synergistic': '#10b981',  // Emerald
+                                            'complementary': '#3b82f6',// Blue
+                                            'related': '#6366f1',      // Indigo
+                                            'tangential': '#64748b',   // Slate
+                                            'axiom': '#0f172a'         // Dark Slate
+                                        };
+                    
+                                        const adaptedNodes = data.nodes.map(n => ({
+                                            id: n.id,
+                                            group: n.group,
+                                            label: n.label,
+                                            val: n.group === 'axiom' ? 2 : (n.mass * 2), // Size
+                                            color: groupColors[n.group] || '#ffffff',
+                                            desc: n.title,
+                                            theory_name: n.theory_name // Pass theory name
+                                        }));
+                    
+                                        const gData = {
+                                            nodes: adaptedNodes,
+                                            links: adaptedLinks
+                                        };
+                    
+                                        Graph = ForceGraph3D()
+                                            (document.getElementById('network-container'))
+                                            .graphData(gData)
+                                            .nodeLabel('label')
+                                            .nodeColor('color')
+                                            .nodeResolution(16) // Higher poly spheres
+                                            .onNodeClick(node => {
+                                                if (node.theory_name) {
+                                                    window.location.href = `/theories/${node.theory_name}/`;
+                                                }
+                                            })
+                                            .nodeRelSize(4)
+                                            // Livelier Links
+                                            .linkWidth(link => link.isSimilarity ? 1.5 : 0.5)
+                                            .linkOpacity(link => link.isSimilarity ? 0.8 : 0.2)
+                                            .linkColor('color')
+                                            // Particles for "Data Flow" feel
+                                            .linkDirectionalParticles(link => link.isSimilarity ? 4 : 0) // Particles only on shared concept links
+                                            .linkDirectionalParticleSpeed(0.005)
+                                            .linkDirectionalParticleWidth(2)
+                                            .linkDirectionalParticleColor(() => '#38bdf8') // Sky blue particles
+                                            
+                                            .backgroundColor('#0f172a') // Match Tailwind sci-base
+                                            .showNavInfo(false);
+                    
+                                        // Add hover cursor
+                    
+
+                                        const container = document.getElementById('network-container');
+
+                                        Graph.onNodeHover(node => container.style.cursor = node ? 'pointer' : null);
+
+                    
+
+                                        // Custom Physics to ensure stability
+                    Graph.d3Force('charge').strength(-100); // Repel
+                    Graph.d3Force('link').distance(link => link.title ? 50 : 100); // Tighter for similarity links
+                    
+                    // Auto-rotate gently for "Space" feel
+                    let angle = 0;
+                    setInterval(() => {
+                        angle += Math.PI / 1500;
+                        Graph.cameraPosition({
+                            x: 400 * Math.sin(angle),
+                            z: 400 * Math.cos(angle)
+                        });
+                    }, 30);
+                });
+        }
+    </script>
+{% endblock %}
