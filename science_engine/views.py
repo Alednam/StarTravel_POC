@@ -207,7 +207,6 @@ def oracle_engine_view(request):
 
     context = {
         'timeline_data': timeline_graph,
-        'timeline_json': json.dumps(timeline_graph),
         'theories': timeline_graph['theories'],
         'edges': timeline_graph['edges'],
         'eras': timeline_graph['eras'],

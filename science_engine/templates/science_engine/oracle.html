@@ -44,6 +44,8 @@
 
     /* Connector Path Styles & Transitions */
     .connector-path {
+        pointer-events: stroke;
+        cursor: pointer;
         transition: stroke-width 0.25s ease, stroke-opacity 0.25s ease, filter 0.25s ease;
     }
     .connector-path.spotlight-active {
@@ -236,7 +238,7 @@
                 <div id="chrono-canvas" class="relative w-[3400px] h-[780px] p-8 origin-top-left transition-transform duration-100 ease-out">
 
                     <!-- SVG Layer for Directed Curved Connectors -->
-                    <svg id="connector-svg" class="absolute inset-0 w-full h-full pointer-events-auto" style="z-index: 5;">
+                    <svg id="connector-svg" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 5;">
                         <defs>
                             <marker id="arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                                 <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#38bdf8" />
@@ -265,20 +267,20 @@
                     </svg>
 
                     <!-- Horizontal Chronological Timeline Axis Rail -->
-                    <div class="absolute left-8 right-8 top-[380px] h-2 bg-slate-800 rounded-full border border-slate-700/60 pointer-events-none" style="z-index: 1;">
+                    <div class="absolute left-8 right-8 top-[380px] h-2 bg-slate-800 rounded-full border border-slate-700/60 pointer-events-none" style="z-index: 8;">
                         <div class="h-full w-full bg-gradient-to-r from-amber-500/20 via-sky-500/30 to-teal-500/30 rounded-full"></div>
                         
-                        <!-- Milestones / Year Ticks -->
-                        <div class="absolute inset-0 flex justify-between items-center px-4 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-amber-400">1687: Principia & Mechanics</span>
-                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-orange-400">1850: Thermodynamics</span>
-                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-indigo-400">1915: General Relativity</span>
-                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-emerald-400">1925: Quantum Formalism</span>
-                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-sky-400">1967: Electroweak Gauge</span>
-                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-purple-400">1981: 4PT & Foliation</span>
-                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-pink-400">1995: IUC Invariants</span>
-                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-teal-400">2026: Spaceflight POC</span>
-                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-rose-800 text-rose-400">2045+: Horizon</span>
+                        <!-- Milestones / Year Ticks (Clickable navigation) -->
+                        <div class="absolute inset-0 flex justify-between items-center px-4 text-[10px] text-slate-500 font-bold uppercase tracking-wider pointer-events-none">
+                            <button onclick="selectTheoryNode('scraped_scientific_laws'); scrollToTheory('scraped_scientific_laws');" class="pointer-events-auto cursor-pointer hover:scale-105 relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-amber-400 hover:border-amber-400 transition">1687: Principia & Mechanics</button>
+                            <button onclick="selectTheoryNode('Thermodynamics_Information'); scrollToTheory('Thermodynamics_Information');" class="pointer-events-auto cursor-pointer hover:scale-105 relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-orange-400 hover:border-orange-400 transition">1850: Thermodynamics</button>
+                            <button onclick="selectTheoryNode('General_Relativity'); scrollToTheory('General_Relativity');" class="pointer-events-auto cursor-pointer hover:scale-105 relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-indigo-400 hover:border-indigo-400 transition">1915: General Relativity</button>
+                            <button onclick="selectTheoryNode('Quantum_Mechanics'); scrollToTheory('Quantum_Mechanics');" class="pointer-events-auto cursor-pointer hover:scale-105 relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-emerald-400 hover:border-emerald-400 transition">1925: Quantum Formalism</button>
+                            <button onclick="selectTheoryNode('Electroweak_Theory'); scrollToTheory('Electroweak_Theory');" class="pointer-events-auto cursor-pointer hover:scale-105 relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-sky-400 hover:border-sky-400 transition">1967: Electroweak Gauge</button>
+                            <button onclick="selectTheoryNode('4PT'); scrollToTheory('4PT');" class="pointer-events-auto cursor-pointer hover:scale-105 relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-purple-400 hover:border-purple-400 transition">1981: 4PT & Foliation</button>
+                            <button onclick="selectTheoryNode('IUC'); scrollToTheory('IUC');" class="pointer-events-auto cursor-pointer hover:scale-105 relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-pink-400 hover:border-pink-400 transition">1995: IUC Invariants</button>
+                            <button onclick="selectTheoryNode('Magnetospheric_Spaceflight'); scrollToTheory('Magnetospheric_Spaceflight');" class="pointer-events-auto cursor-pointer hover:scale-105 relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-teal-400 hover:border-teal-400 transition">2026: Spaceflight POC</button>
+                            <button onclick="toggleSynthesizerDrawer();" class="pointer-events-auto cursor-pointer hover:scale-105 relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-rose-800 text-rose-400 hover:border-rose-400 transition">2045+: Horizon</button>
                         </div>
                     </div>
 
@@ -318,7 +320,7 @@
                             </div>
 
                             <!-- Footer Badges -->
-                            <div class="flex items-center justify-between text-[10px] pt-2 border-t border-slate-800/80">
+                            <div class="flex items-center justify-between text-[10px] pt-2 border-t border-slate-800/80 mb-2">
                                 <span class="text-slate-400 font-mono truncate max-w-[190px]">
                                     {{ theory.badge }}
                                 </span>
@@ -330,6 +332,18 @@
                                         {{ theory.successor_ids|length }} &rarr;
                                     </span>
                                 </div>
+                            </div>
+
+                            <!-- Direct Navigation Actions -->
+                            <div class="flex items-center gap-2 pt-1 border-t border-slate-800/60">
+                                <button onclick="event.stopPropagation(); selectTheoryNode('{{ theory.id }}'); scrollToTheory('{{ theory.id }}');"
+                                        class="flex-1 py-1 px-2 rounded bg-slate-800/80 hover:bg-slate-700 text-cyan-400 font-bold text-[10px] text-center transition border border-slate-700/60">
+                                    Trace Pedigree
+                                </button>
+                                <a href="/theories/{{ theory.id }}/" onclick="event.stopPropagation();"
+                                   class="py-1 px-2.5 rounded bg-purple-900/40 hover:bg-purple-900/80 text-purple-300 font-bold text-[10px] text-center border border-purple-500/40 transition">
+                                    Manuscript &rarr;
+                                </a>
                             </div>
                         </div>
                         {% endfor %}
@@ -380,10 +394,12 @@
                         <span>2026</span>
                     </div>
 
-                    <!-- Glowing Dots for all Theories on Minimap -->
+                    <!-- Glowing Dots for all Theories on Minimap (Clickable) -->
                     {% for theory in theories %}
-                    <div class="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full pointer-events-none"
-                         style="left: calc(({{ forloop.counter0 }} * 12.5%) + 3%); background-color: {{ theory.color }}; box-shadow: 0 0 6px {{ theory.color }};"></div>
+                    <button onclick="event.stopPropagation(); selectTheoryNode('{{ theory.id }}'); scrollToTheory('{{ theory.id }}');"
+                         title="Jump to {{ theory.short_name }} ({{ theory.year_display }})"
+                         class="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full hover:scale-150 transition pointer-events-auto z-10 cursor-pointer"
+                         style="left: calc(({{ forloop.counter0 }} * 12.5%) + 3%); background-color: {{ theory.color }}; box-shadow: 0 0 6px {{ theory.color }};"></button>
                     {% endfor %}
 
                     <!-- Viewport Position Indicator Box -->
@@ -625,13 +641,17 @@
 </div>
 
 <!-- Data Island for Timeline Graph -->
-{{ timeline_json|json_script:"timeline-data-island" }}
+{{ timeline_data|json_script:"timeline-data-island" }}
 
 <script>
-    // State & Graph Data
-    const timelineData = JSON.parse(document.getElementById('timeline-data-island').textContent);
+    // State & Graph Data (Robust Parsing)
+    let rawTimeline = JSON.parse(document.getElementById('timeline-data-island').textContent);
+    if (typeof rawTimeline === 'string') {
+        try { rawTimeline = JSON.parse(rawTimeline); } catch(e) {}
+    }
+    const timelineData = rawTimeline || { theories: [], edges: [], eras: [] };
     const theoriesMap = {};
-    timelineData.theories.forEach(t => { theoriesMap[t.id] = t; });
+    (timelineData.theories || []).forEach(t => { theoriesMap[t.id] = t; });
 
     let activeSelectedTheoryId = null;
     let activeEraFilter = 'all';
@@ -948,7 +968,12 @@
         const viewport = document.getElementById('chrono-viewport');
         if (pos && viewport) {
             const targetX = (pos.x * currentZoom) - (viewport.clientWidth / 2) + 165;
-            viewport.scrollTo({ left: Math.max(0, targetX), behavior: 'smooth' });
+            const targetY = (pos.y * currentZoom) - (viewport.clientHeight / 2) + 120;
+            viewport.scrollTo({
+                left: Math.max(0, targetX),
+                top: Math.max(0, targetY),
+                behavior: 'smooth'
+            });
         }
     }
 
@@ -1203,7 +1228,7 @@
         document.getElementById('bridge-modal').classList.add('hidden');
     }
 
-    // 14. Era Filter Handler
+    // 14. Era Filter Handler with Automatic Navigation
     function filterEra(eraId) {
         activeEraFilter = eraId;
         document.querySelectorAll('.era-btn').forEach(b => {
@@ -1222,6 +1247,21 @@
                 card.style.display = 'none';
             }
         });
+
+        // Automatically navigate and smoothly center the canvas on the selected epoch
+        if (eraId !== 'all') {
+            const firstTheoryInEra = (timelineData.theories || []).find(t => t.era_id === eraId);
+            if (firstTheoryInEra) {
+                selectTheoryNode(firstTheoryInEra.id);
+                scrollToTheory(firstTheoryInEra.id);
+            }
+        } else {
+            resetHighlights();
+            const viewport = document.getElementById('chrono-viewport');
+            if (viewport) {
+                viewport.scrollTo({ left: 350, behavior: 'smooth' });
+            }
+        }
     }
 
     // 15. Trajectory Synthesizer Toggle & Handler
