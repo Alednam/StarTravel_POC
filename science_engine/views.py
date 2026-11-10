@@ -177,24 +177,43 @@ def index(request):
 
 def oracle_engine_view(request):
     """
-    Renders the Oracle Engine interface for probability calculation.
+    Renders the Oracle Chrono-Connector Engine:
+    A linear timeline and relational connector graph displaying theoretical chronology,
+    mathematical derivations, and dynamic future trajectory projection.
     """
-    anchors = bot.oracle.anchors
-    result = None
+    import json
+    # Fetch database theories to augment with live DB counts & data
+    db_theories = {t.name: t for t in TheoryModel.objects.prefetch_related('topics').all()}
+    
+    # Get complete timeline and connector graph
+    timeline_graph = bot.oracle.get_timeline_graph(db_theories)
+    
+    projected_node = None
     current_hypothesis = ""
-    selected_anchors = []
+    selected_theories = []
 
     if request.method == 'POST':
-        current_hypothesis = request.POST.get('hypothesis', '')
-        selected_anchors = request.POST.getlist('anchors')
+        current_hypothesis = request.POST.get('hypothesis', '').strip()
+        selected_theories = request.POST.getlist('theories')
         
-        result = bot.oracle.calculate_resonance(current_hypothesis, selected_anchors)
+        projected_node = bot.oracle.synthesize_trajectory(current_hypothesis, selected_theories, db_theories)
+        
+        # If AJAX / Fetch request, return JSON response
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+            return JsonResponse({
+                'status': 'success',
+                'projected_node': projected_node
+            })
 
     context = {
-        'anchors': anchors,
-        'result': result,
+        'timeline_data': timeline_graph,
+        'timeline_json': json.dumps(timeline_graph),
+        'theories': timeline_graph['theories'],
+        'edges': timeline_graph['edges'],
+        'eras': timeline_graph['eras'],
+        'projected_node': projected_node,
         'current_hypothesis': current_hypothesis,
-        'selected_anchors': selected_anchors,
+        'selected_theories': selected_theories,
     }
     return render(request, 'science_engine/oracle.html', context)
 

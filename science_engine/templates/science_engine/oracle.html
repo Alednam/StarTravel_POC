@@ -1,139 +1,894 @@
 {% extends 'science_engine/base.html' %}
 
-{% block content %}
-<div class="flex h-full w-full bg-sci-base font-mono">
-    <!-- Sidebar: Controls -->
-    <div class="w-80 bg-slate-900 border-r border-slate-700 p-6 flex flex-col shrink-0 overflow-y-auto">
-        <h2 class="text-purple-400 font-bold mb-4 tracking-wider flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-            ORACLE ENGINE
-        </h2>
-        
-        <form method="POST" action="{% url 'oracle_engine' %}" class="space-y-6">
-            {% csrf_token %}
-            
-            <!-- Hypothesis Input -->
-            <div>
-                <label class="text-xs uppercase text-slate-500 font-bold mb-2 block">Define Future Event</label>
-                <textarea name="hypothesis" rows="4" class="w-full bg-slate-800 border border-slate-700 rounded p-3 text-white focus:border-purple-500 focus:outline-none placeholder-slate-600 text-sm" placeholder="e.g., AI replaces creative jobs, leading to a new cultural dark age..." required>{{ current_hypothesis }}</textarea>
-            </div>
-
-            <!-- Historical Anchors -->
-            <div>
-                <label class="text-xs uppercase text-slate-500 font-bold mb-2 block">Reference Frame (History)</label>
-                <div class="space-y-2">
-                    {% for key, anchor in anchors.items %}
-                    <label class="flex items-start p-2 rounded bg-slate-800 border border-slate-700 hover:border-purple-500/50 cursor-pointer transition-colors">
-                        <input type="checkbox" name="anchors" value="{{ key }}" class="mt-1 mr-3 text-purple-600 bg-slate-900 border-slate-600 rounded focus:ring-purple-500" {% if key in selected_anchors %}checked{% endif %}>
-                        <div>
-                            <div class="text-sm font-bold text-white">{{ anchor.name }}</div>
-                            <div class="text-[10px] text-slate-400 leading-tight mt-1">{{ anchor.description|truncatechars:60 }}</div>
-                        </div>
-                    </label>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded shadow-lg transition-transform active:scale-95 flex items-center justify-center group">
-                CALCULATE TRAJECTORY
-            </button>
-        </form>
-    </div>
-
-    <!-- Main Content: Visualization -->
-    <div class="flex-1 bg-slate-950 p-8 flex flex-col relative overflow-hidden">
-        <!-- Background Grid -->
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-
-        {% if result %}
-        <div class="relative z-10 max-w-4xl mx-auto w-full animate-fade-in-up">
-            <!-- Score Card -->
-            <div class="bg-slate-900/90 backdrop-blur border border-purple-500/30 rounded-2xl p-8 mb-8 shadow-[0_0_50px_-12px_rgba(168,85,247,0.25)]">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h3 class="text-purple-400 text-sm font-bold uppercase tracking-widest mb-1">Reality Convergence Score</h3>
-                        <div class="text-5xl font-bold text-white tracking-tighter">{{ result.score }}<span class="text-2xl text-purple-500">%</span></div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-sm text-slate-400 uppercase tracking-widest mb-1">Trajectory Status</div>
-                        <div class="text-2xl font-bold {% if result.score > 80 %}text-red-400{% elif result.score > 50 %}text-yellow-400{% else %}text-green-400{% endif %}">
-                            {{ result.trajectory }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Probability Bar -->
-                <div class="w-full bg-slate-800 rounded-full h-4 mb-8 overflow-hidden relative">
-                    <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-1000 ease-out" style="width: {{ result.score }}%"></div>
-                    <!-- Markers -->
-                    <div class="absolute top-0 left-[25%] h-full w-px bg-slate-900/50"></div>
-                    <div class="absolute top-0 left-[50%] h-full w-px bg-slate-900/50"></div>
-                    <div class="absolute top-0 left-[75%] h-full w-px bg-slate-900/50"></div>
-                </div>
-
-                <!-- Resonant Factors -->
-                <div>
-                    <h4 class="text-xs uppercase text-slate-500 font-bold mb-3">Resonant Historical Factors</h4>
-                    <ul class="space-y-2">
-                        {% for factor in result.factors %}
-                        <li class="flex items-center text-sm text-slate-300">
-                            <span class="w-2 h-2 rounded-full bg-purple-500 mr-3 animate-pulse"></span>
-                            {{ factor }}
-                        </li>
-                        {% empty %}
-                        <li class="text-slate-500 italic text-sm">No significant historical resonance detected.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Analysis Box -->
-            <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
-                <div class="flex items-start gap-4">
-                    <div class="p-3 bg-purple-900/30 rounded-lg text-purple-400 shrink-0">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    </div>
-                    <div>
-                        <h4 class="text-white font-bold mb-1">5D Observer Log</h4>
-                        <p class="text-slate-400 text-sm leading-relaxed">
-                            System has analyzed the hypothesis <span class="text-white italic">"{{ result.hypothesis }}"</span> against {{ selected_anchors|length }} confirmed timeline anchors. 
-                            {% if result.score > 80 %}
-                            The structural similarity to past events indicates a <span class="text-red-400 font-bold">CRITICAL MOMENTUM</span>. Without intervention, this event is statistically inevitable.
-                            {% elif result.score > 50 %}
-                            Historical patterns are emerging. The probability wave is collapsing, but branch points still exist.
-                            {% else %}
-                            This event lacks historical precedent. It represents a <span class="text-green-400 font-bold">NOVEL BRANCH</span> or low-probability fluctuation.
-                            {% endif %}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <!-- Empty State -->
-        <div class="flex flex-col items-center justify-center h-full text-slate-600 relative z-10">
-            <svg class="w-24 h-24 mb-6 opacity-20 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <p class="text-lg font-light tracking-wide mb-2">Awaiting Input Vector...</p>
-            <p class="text-sm opacity-60">Define a future event to calculate its historical resonance.</p>
-        </div>
-        {% endif %}
-    </div>
-</div>
-
+{% block extra_head %}
 <style>
-    @keyframes fade-in-up {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+    /* Timeline & Connector Graph Styles */
+    .chrono-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: #334155 #0b1120;
     }
-    .animate-fade-in-up {
-        animation: fade-in-up 0.6s ease-out forwards;
+    .chrono-scroll::-webkit-scrollbar {
+        height: 10px;
     }
-    .animate-spin-slow {
-        animation: spin 12s linear infinite;
+    .chrono-scroll::-webkit-scrollbar-track {
+        background: #0b1120;
     }
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+    .chrono-scroll::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 5px;
+    }
+    .chrono-scroll::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+    }
+
+    /* Flowing dashed path animation */
+    @keyframes dashflow {
+        to {
+            stroke-dashoffset: -40;
+        }
+    }
+    .flow-connector {
+        stroke-dasharray: 8 6;
+        animation: dashflow 1.8s linear infinite;
+    }
+    .connector-path {
+        transition: stroke-width 0.2s, stroke-opacity 0.2s, filter 0.2s;
+    }
+    .connector-path:hover {
+        stroke-width: 3.5px !important;
+        stroke-opacity: 1 !important;
+        filter: drop-shadow(0 0 8px currentColor);
+        cursor: pointer;
+    }
+
+    /* Node hover effects */
+    .theory-card {
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s, opacity 0.3s, border-color 0.2s;
+    }
+    .theory-card:hover {
+        transform: translateY(-4px) scale(1.02);
+    }
+    .theory-card.dimmed {
+        opacity: 0.15 !important;
+        filter: grayscale(80%);
+    }
+    .connector-path.dimmed {
+        stroke-opacity: 0.06 !important;
+    }
+    .theory-card.highlight-target {
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.5) !important;
+        border-color: #38bdf8 !important;
+    }
+    .theory-card.highlight-ancestor {
+        box-shadow: 0 0 25px rgba(16, 185, 129, 0.5) !important;
+        border-color: #10b981 !important;
+    }
+    .theory-card.highlight-descendant {
+        box-shadow: 0 0 25px rgba(168, 85, 247, 0.5) !important;
+        border-color: #a855f7 !important;
+    }
+
+    /* Pulse animation */
+    @keyframes pulse-subtle {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.85; transform: scale(1.03); }
+    }
+    .pulse-glow {
+        animation: pulse-subtle 3s ease-in-out infinite;
     }
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col h-full w-full bg-slate-950 font-mono select-none overflow-hidden text-slate-200">
+
+    <!-- Top Command & Control Bar -->
+    <header class="h-16 bg-slate-900/90 border-b border-slate-800 px-6 flex items-center justify-between shrink-0 z-20 backdrop-blur">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <span class="p-2 rounded-lg bg-purple-950/60 border border-purple-500/40 text-purple-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </span>
+                <div>
+                    <h1 class="text-sm font-bold text-white tracking-widest uppercase flex items-center gap-2">
+                        ORACLE CHRONO-CONNECTOR
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950 border border-purple-500/30 text-purple-300">
+                            LINEAR & RELATIONAL GRAPH
+                        </span>
+                    </h1>
+                    <p class="text-[11px] text-slate-400">Chronological formulation & mathematical derivation web (1687 – 2026+)</p>
+                </div>
+            </div>
+
+            <!-- Stats Pills -->
+            <div class="hidden md:flex items-center gap-2 text-xs ml-4">
+                <span class="px-2.5 py-1 bg-slate-800/80 border border-slate-700/80 rounded-full text-slate-300">
+                    <strong class="text-cyan-400">{{ timeline_data.theories|length }}</strong> Theories
+                </span>
+                <span class="px-2.5 py-1 bg-slate-800/80 border border-slate-700/80 rounded-full text-slate-300">
+                    <strong class="text-purple-400">{{ timeline_data.edges|length }}</strong> Verified Bridges
+                </span>
+                <span class="px-2.5 py-1 bg-slate-800/80 border border-slate-700/80 rounded-full text-slate-300">
+                    <strong class="text-amber-400">340+</strong> Years of Evolution
+                </span>
+            </div>
+        </div>
+
+        <!-- Controls: Eras Filter & Actions -->
+        <div class="flex items-center gap-2">
+            <!-- Era Filter Pills -->
+            <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
+                {% for era in eras %}
+                <button onclick="filterEra('{{ era.id }}')" id="era-btn-{{ era.id }}"
+                    class="era-btn px-2.5 py-1 rounded transition font-medium {% if era.id == 'all' %}bg-purple-600 text-white font-bold{% else %}text-slate-400 hover:text-white hover:bg-slate-800{% endif %}">
+                    {{ era.name }}
+                </button>
+                {% endfor %}
+            </div>
+
+            <!-- Trajectory Synthesizer Toggle -->
+            <button onclick="toggleSynthesizerDrawer()" class="px-3 py-1.5 bg-purple-900/40 hover:bg-purple-900/70 border border-purple-500/40 text-purple-300 hover:text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition">
+                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                <span>Synthesize Future</span>
+            </button>
+
+            <!-- Reset Graph View -->
+            <button onclick="resetHighlights()" title="Reset Highlight Filters" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- Central Timeline & Connector Graph Canvas Container -->
+        <main class="flex-1 flex flex-col overflow-hidden relative">
+
+            <!-- Legend & Interactive Hint Banner -->
+            <div class="h-10 bg-slate-900/60 border-b border-slate-800/80 px-6 flex items-center justify-between text-[11px] text-slate-400 shrink-0 z-10">
+                <div class="flex items-center gap-4">
+                    <span class="text-slate-500 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block animate-ping"></span>
+                        Click node to isolate upstream parents (cyan) & downstream descendants (purple)
+                    </span>
+                    <span class="hidden lg:inline text-slate-600">|</span>
+                    <span class="hidden lg:flex items-center gap-2">
+                        <span class="inline-block w-4 h-0.5 bg-amber-400"></span> Classical
+                        <span class="inline-block w-4 h-0.5 bg-indigo-400"></span> Relativistic
+                        <span class="inline-block w-4 h-0.5 bg-emerald-400"></span> Quantum
+                        <span class="inline-block w-4 h-0.5 bg-sky-400"></span> Gauge
+                        <span class="inline-block w-4 h-0.5 bg-purple-400"></span> Foliation
+                        <span class="inline-block w-4 h-0.5 bg-teal-400"></span> Spaceflight
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span id="active-selection-label" class="text-purple-400 font-bold">Showing All 8 Theories</span>
+                    <button onclick="centerTimeline()" class="text-[11px] text-slate-400 hover:text-white underline">Scroll to Modern Era</button>
+                </div>
+            </div>
+
+            <!-- Scrollable Timeline Canvas Area -->
+            <div id="chrono-viewport" class="flex-1 overflow-x-auto overflow-y-auto chrono-scroll relative bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px]">
+
+                <!-- Master Graph Canvas: Width accommodates 8 theories chronologically from 1687 to 2045+ -->
+                <div id="chrono-canvas" class="relative w-[3400px] h-[780px] p-8">
+
+                    <!-- SVG Layer for Directed Connector Curves (Behind Theory Cards) -->
+                    <svg id="connector-svg" class="absolute inset-0 w-full h-full pointer-events-auto" style="z-index: 5;">
+                        <defs>
+                            <!-- Markers for directed connector arrows -->
+                            <marker id="arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#38bdf8" />
+                            </marker>
+                            <marker id="arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#c084fc" />
+                            </marker>
+                            <marker id="arrow-emerald" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#34d399" />
+                            </marker>
+                            <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#fbbf24" />
+                            </marker>
+                            <marker id="arrow-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#f43f5e" />
+                            </marker>
+                            <marker id="arrow-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#2dd4bf" />
+                            </marker>
+                        </defs>
+
+                        <!-- Dynamic Curves will be drawn via JavaScript -->
+                        <g id="svg-paths-group"></g>
+                        <!-- Dynamic Projected Future Curves -->
+                        <g id="svg-future-paths-group"></g>
+                    </svg>
+
+                    <!-- Horizontal Chronological Timeline Axis Rail -->
+                    <div class="absolute left-8 right-8 top-[380px] h-2 bg-slate-800 rounded-full border border-slate-700/60 pointer-events-none" style="z-index: 1;">
+                        <!-- Glowing Center Rail -->
+                        <div class="h-full w-full bg-gradient-to-r from-amber-500/20 via-sky-500/30 to-teal-500/30 rounded-full"></div>
+                        
+                        <!-- Milestones / Year Ticks -->
+                        <div class="absolute inset-0 flex justify-between items-center px-4 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-amber-400">1687: Principia & Mechanics</span>
+                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-orange-400">1850: Thermodynamics</span>
+                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-indigo-400">1915: General Relativity</span>
+                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-emerald-400">1925: Quantum Formalism</span>
+                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-sky-400">1967: Electroweak Gauge</span>
+                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-purple-400">1981: 4PT & Foliation</span>
+                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-pink-400">1995: IUC Invariants</span>
+                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-teal-400">2026: Magnetospheric Flight</span>
+                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-pink-800 text-rose-400">2045+: Horizon</span>
+                        </div>
+                    </div>
+
+                    <!-- Theory Nodes Container (Cards rendered chronologically) -->
+                    <div id="theory-nodes-layer" class="relative w-full h-full pointer-events-none" style="z-index: 10;">
+                        {% for theory in theories %}
+                        <!-- Card rendered and positioned according to chronological slot -->
+                        <div id="card-{{ theory.id }}"
+                             data-theory-id="{{ theory.id }}"
+                             data-era="{{ theory.era_id }}"
+                             data-year="{{ theory.year }}"
+                             onclick="selectTheoryNode('{{ theory.id }}')"
+                             class="theory-card pointer-events-auto absolute w-[330px] bg-slate-900/95 border-2 rounded-xl p-4 shadow-xl cursor-pointer backdrop-blur"
+                             style="border-color: {{ theory.color }};">
+                             
+                            <!-- Header: Code, Era, Year -->
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono tracking-wider bg-slate-950 border border-slate-800"
+                                      style="color: {{ theory.color }};">
+                                    {{ theory.code }}
+                                </span>
+                                <span class="text-xs font-bold font-mono px-2 py-0.5 rounded-full bg-slate-800/80 text-white border border-slate-700">
+                                    {{ theory.year_display }}
+                                </span>
+                            </div>
+
+                            <!-- Title & Subtitle -->
+                            <h3 class="text-sm font-bold text-white tracking-wide leading-tight mb-1">
+                                {{ theory.name }}
+                            </h3>
+                            <p class="text-[11px] text-slate-400 font-sans italic mb-3">
+                                {{ theory.authors }}
+                            </p>
+
+                            <!-- Core Formula Preview -->
+                            <div class="p-2.5 bg-slate-950 rounded-lg border border-slate-800/80 mb-3 overflow-x-auto text-xs text-center text-slate-300">
+                                $${{ theory.core_formula }}$$
+                            </div>
+
+                            <!-- Footer Badges -->
+                            <div class="flex items-center justify-between text-[10px] pt-2 border-t border-slate-800/80">
+                                <span class="text-slate-400 font-mono truncate max-w-[190px]">
+                                    {{ theory.badge }}
+                                </span>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono" title="Incoming ancestor connections">
+                                        &larr; {{ theory.predecessor_ids|length }}
+                                    </span>
+                                    <span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono" title="Outgoing descendant connections">
+                                        {{ theory.successor_ids|length }} &rarr;
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <!-- Projected Future Node Placeholder -->
+                        <div id="card-synth_projected"
+                             class="theory-card pointer-events-auto absolute w-[330px] bg-slate-900/95 border-2 border-dashed border-rose-500 rounded-xl p-4 shadow-[0_0_35px_rgba(244,63,94,0.3)] cursor-pointer backdrop-blur hidden">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-rose-950 border border-rose-600 text-rose-300 animate-pulse">
+                                    PROJECTED HORIZON
+                                </span>
+                                <span id="projected-year-badge" class="text-xs font-bold font-mono px-2 py-0.5 rounded-full bg-slate-800 text-rose-400 border border-rose-800">
+                                    2045+
+                                </span>
+                            </div>
+                            <h3 id="projected-title" class="text-sm font-bold text-white tracking-wide leading-tight mb-1">
+                                Synthetic Trajectory Node
+                            </h3>
+                            <p id="projected-parents-desc" class="text-[11px] text-rose-300/80 font-sans italic mb-3">
+                                Coupled from selected foundational axioms
+                            </p>
+                            <div id="projected-formula-preview" class="p-2.5 bg-slate-950 rounded-lg border border-rose-900/40 mb-3 text-xs text-center text-slate-300">
+                                $$\mathcal{S}_{\text{unified}} = \int_{\Sigma_t} (\mathcal{L} + \dots) \sqrt{-g} d^4x$$
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] pt-2 border-t border-slate-800 text-rose-400 font-mono">
+                                <span>Convergence: <strong id="projected-score-val">94.2%</strong></span>
+                                <span class="underline">Inspect Horizon</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Side: Deep Theory Inspector Drawer (Collapsible) -->
+        <aside id="inspector-drawer" class="w-96 bg-slate-900 border-l border-slate-800 flex flex-col shrink-0 overflow-hidden shadow-2xl transition-all duration-300 z-30">
+            <div class="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-white">Theory Inspector</h2>
+                </div>
+                <button onclick="closeInspector()" class="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Scrollable Content of Selected Theory -->
+            <div id="inspector-content" class="flex-1 overflow-y-auto p-5 space-y-6 text-xs font-mono">
+                <!-- Placeholder when no theory is active -->
+                <div id="inspector-placeholder" class="h-full flex flex-col items-center justify-center text-center text-slate-500 py-12">
+                    <svg class="w-12 h-12 mb-3 opacity-30 text-purple-400 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="9" stroke-width="2" stroke-dasharray="8 6"></circle>
+                    </svg>
+                    <p class="text-sm font-bold text-slate-400 mb-1">Select a Theory Node</p>
+                    <p class="text-[11px] max-w-[200px]">Click any card on the timeline to inspect its mathematical state space, symmetries, and connector derivations.</p>
+                </div>
+
+                <!-- Active Details Container (Populated by JS) -->
+                <div id="inspector-active-data" class="hidden space-y-5">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span id="inspect-code" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-400"></span>
+                            <span id="inspect-year" class="text-[11px] font-bold text-slate-400"></span>
+                        </div>
+                        <h3 id="inspect-name" class="text-base font-bold text-white tracking-wide font-sans leading-tight"></h3>
+                        <p id="inspect-authors" class="text-[11px] text-slate-400 font-sans italic mt-1"></p>
+                    </div>
+
+                    <!-- Premise Box -->
+                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                        <span class="text-[10px] font-bold uppercase text-slate-500 tracking-wider block mb-1">Formal Premise</span>
+                        <p id="inspect-premise" class="text-[11px] text-slate-300 font-sans leading-relaxed"></p>
+                    </div>
+
+                    <!-- Core Formula -->
+                    <div>
+                        <span class="text-[10px] font-bold uppercase text-slate-500 tracking-wider block mb-1">Governing Field Equation</span>
+                        <div id="inspect-formula" class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-center text-xs text-white"></div>
+                    </div>
+
+                    <!-- Symmetries & Invariants -->
+                    <div class="grid grid-cols-2 gap-2 text-[10px]">
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-500 font-bold uppercase block mb-1">Symmetries</span>
+                            <ul id="inspect-symmetries" class="space-y-1 text-slate-300"></ul>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-500 font-bold uppercase block mb-1">Invariants</span>
+                            <ul id="inspect-invariants" class="space-y-1 text-slate-300"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Direct Lineage: Ancestors & Successors -->
+                    <div class="space-y-3 pt-2 border-t border-slate-800">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase text-slate-500 tracking-wider block mb-1.5 flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Upstream Ancestors (Foundations)
+                            </span>
+                            <div id="inspect-ancestors-list" class="flex flex-wrap gap-1.5"></div>
+                        </div>
+
+                        <div>
+                            <span class="text-[10px] font-bold uppercase text-slate-500 tracking-wider block mb-1.5 flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-purple-400"></span> Downstream Derivations (Successors)
+                            </span>
+                            <div id="inspect-successors-list" class="flex flex-wrap gap-1.5"></div>
+                        </div>
+                    </div>
+
+                    <!-- Deep Link to Theory Library -->
+                    <div class="pt-2">
+                        <a id="inspect-link-btn" href="#" class="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-center block text-xs tracking-wider transition">
+                            OPEN IN THEORY LIBRARY &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Slide-Up Trajectory Synthesizer Panel (Active Tool) -->
+    <div id="synthesizer-panel" class="bg-slate-900 border-t border-slate-800 p-6 shadow-2xl transition-all duration-300 z-30 shrink-0 hidden">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="p-1.5 rounded bg-rose-950 border border-rose-500/40 text-rose-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </span>
+                    <div>
+                        <h3 class="text-sm font-bold text-white tracking-wider uppercase">Future Trajectory Projector</h3>
+                        <p class="text-[11px] text-slate-400 font-sans">Synthesize two or more foundational theories into an empirical future horizon on the timeline.</p>
+                    </div>
+                </div>
+                <button onclick="toggleSynthesizerDrawer()" class="text-slate-400 hover:text-white text-xs font-mono">
+                    Close [ESC]
+                </button>
+            </div>
+
+            <form id="synth-form" onsubmit="handleSynthesize(event)" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Hypothesis / Event Input -->
+                <div class="md:col-span-1 space-y-2">
+                    <label class="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">Future Breakthrough / Event</label>
+                    <input type="text" id="synth-hypothesis" name="hypothesis"
+                           placeholder="e.g., Quantum Magnetospheric Warp Coupling..."
+                           value="{{ current_hypothesis|default:'Quantum Magnetospheric Propulsion & Decoherence Shield' }}"
+                           class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs text-white focus:border-rose-500 focus:outline-none placeholder-slate-600">
+                    <p class="text-[10px] text-slate-500 font-sans">The Oracle will project where this breakthrough sits and graph its mathematical ancestry.</p>
+                </div>
+
+                <!-- Theory Multi-Selector Checkboxes -->
+                <div class="md:col-span-2 space-y-2">
+                    <label class="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">Select Foundational Parent Theories (Ancestors)</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {% for theory in theories %}
+                        <label class="flex items-center p-2 rounded bg-slate-950 border border-slate-800 hover:border-purple-500/50 cursor-pointer text-[11px] transition">
+                            <input type="checkbox" name="theories" value="{{ theory.id }}"
+                                   class="mr-2 text-rose-500 bg-slate-900 border-slate-700 rounded focus:ring-rose-500"
+                                   {% if theory.id in selected_theories or theory.id == 'Quantum_Mechanics' or theory.id == 'Magnetospheric_Spaceflight' %}checked{% endif %}>
+                            <span class="truncate text-slate-300 font-mono text-[10px]">{{ theory.short_name }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2">
+                        <span class="text-[11px] text-slate-400 font-sans">Selected theories will be linked via dynamic animated connector edges.</span>
+                        <button type="submit" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-lg text-xs tracking-wider transition shadow-lg flex items-center gap-2">
+                            <span>PROJECT FUTURE HORIZON</span> &rarr;
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mathematical Bridge Details Modal (Triggered by clicking any connector curve) -->
+    <div id="bridge-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <span id="bridge-badge-color" class="w-3 h-3 rounded-full bg-cyan-400"></span>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-white">Mathematical Bridge Connection</h3>
+                </div>
+                <button onclick="closeBridgeModal()" class="text-slate-400 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Connection Header -->
+            <div class="flex items-center justify-between text-xs font-bold text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <span id="bridge-source-name" class="text-cyan-400">Source</span>
+                <span class="text-slate-500">&xrarr;</span>
+                <span id="bridge-target-name" class="text-purple-400">Target</span>
+            </div>
+
+            <!-- Bridge Mechanism Description -->
+            <div>
+                <span class="text-[10px] font-bold uppercase text-slate-500 tracking-wider block mb-1">Bridge Principle</span>
+                <h4 id="bridge-label" class="text-sm font-bold text-white mb-2"></h4>
+                <p id="bridge-description" class="text-xs text-slate-300 font-sans leading-relaxed bg-slate-950 p-3 rounded-lg border border-slate-800/80"></p>
+            </div>
+
+            <!-- Bridging Formula -->
+            <div>
+                <span class="text-[10px] font-bold uppercase text-slate-500 tracking-wider block mb-1">Coupling Formula</span>
+                <div id="bridge-formula-container" class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-center text-xs text-white"></div>
+            </div>
+
+            <button onclick="closeBridgeModal()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition">
+                Close Inspector
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Data Island for Timeline Graph -->
+{{ timeline_json|json_script:"timeline-data-island" }}
+
+<script>
+    // Load timeline graph data from server
+    const timelineData = JSON.parse(document.getElementById('timeline-data-island').textContent);
+    const theoriesMap = {};
+    timelineData.theories.forEach(t => { theoriesMap[t.id] = t; });
+
+    let activeSelectedTheoryId = null;
+    let activeEraFilter = 'all';
+
+    // Chronological slot positions along canvas
+    // Width: 3400px. Theories placed sequentially according to historical progression.
+    const theoryPositions = {
+        "scraped_scientific_laws": { x: 80,   y: 110, track: "top" },
+        "Thermodynamics_Information": { x: 440,  y: 470, track: "bottom" },
+        "General_Relativity":        { x: 820,  y: 110, track: "top" },
+        "Quantum_Mechanics":         { x: 1200, y: 470, track: "bottom" },
+        "Electroweak_Theory":        { x: 1580, y: 110, track: "top" },
+        "4PT":                       { x: 1960, y: 470, track: "bottom" },
+        "IUC":                       { x: 2340, y: 110, track: "top" },
+        "Magnetospheric_Spaceflight":{ x: 2720, y: 470, track: "bottom" },
+        "synth_projected":           { x: 3080, y: 190, track: "top" }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        positionTheoryNodes();
+        renderConnectorCurves();
+        
+        // Auto-select initial theory (Quantum Mechanics) for rich initial presentation
+        selectTheoryNode("Quantum_Mechanics");
+    });
+
+    // 1. Position Cards according to chronological layout
+    function positionTheoryNodes() {
+        timelineData.theories.forEach(t => {
+            const card = document.getElementById('card-' + t.id);
+            const pos = theoryPositions[t.id];
+            if (card && pos) {
+                card.style.left = pos.x + 'px';
+                card.style.top = pos.y + 'px';
+            }
+        });
+    }
+
+    // 2. Draw curved SVG connectors between theories
+    function renderConnectorCurves() {
+        const svgGroup = document.getElementById('svg-paths-group');
+        svgGroup.innerHTML = '';
+
+        timelineData.edges.forEach(edge => {
+            const srcPos = theoryPositions[edge.source];
+            const tgtPos = theoryPositions[edge.target];
+            if (!srcPos || !tgtPos) return;
+
+            // Compute connection anchor coordinates
+            // Card width: 330px, height ~ 220px
+            const isSrcTop = srcPos.y < 350;
+            const isTgtTop = tgtPos.y < 350;
+
+            const x1 = srcPos.x + 330;
+            const y1 = srcPos.y + (isSrcTop ? 180 : 40);
+
+            const x2 = tgtPos.x;
+            const y2 = tgtPos.y + (isTgtTop ? 180 : 40);
+
+            // Compute smooth cubic bezier control points
+            const dx = Math.max(80, (x2 - x1) * 0.5);
+            const cx1 = x1 + dx;
+            const cy1 = y1 + (isSrcTop ? 60 : -60);
+            const cx2 = x2 - dx;
+            const cy2 = y2 + (isTgtTop ? 60 : -60);
+
+            const pathD = `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
+
+            // Create SVG path element
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("id", `path-${edge.id}`);
+            path.setAttribute("class", "connector-path flow-connector");
+            path.setAttribute("d", pathD);
+            path.setAttribute("stroke", edge.color || "#38bdf8");
+            path.setAttribute("stroke-width", "2.2");
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke-opacity", "0.75");
+            path.setAttribute("data-source", edge.source);
+            path.setAttribute("data-target", edge.target);
+            path.setAttribute("data-edge-id", edge.id);
+
+            // Set appropriate arrowhead marker
+            const markerName = getMarkerForColor(edge.color);
+            path.setAttribute("marker-end", `url(#${markerName})`);
+
+            // Interactive click on curve opens Bridge details modal
+            path.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openBridgeModal(edge);
+            });
+
+            svgGroup.appendChild(path);
+        });
+    }
+
+    function getMarkerForColor(hex) {
+        if (!hex) return 'arrow-cyan';
+        hex = hex.toLowerCase();
+        if (hex.includes('f59e0b') || hex.includes('fbbf24')) return 'arrow-amber';
+        if (hex.includes('10b981') || hex.includes('34d399')) return 'arrow-emerald';
+        if (hex.includes('6366f1') || hex.includes('38bdf8') || hex.includes('0ea5e9')) return 'arrow-cyan';
+        if (hex.includes('a855f7') || hex.includes('c084fc')) return 'arrow-purple';
+        if (hex.includes('ec4899') || hex.includes('f43f5e')) return 'arrow-rose';
+        if (hex.includes('14b8a6') || hex.includes('2dd4bf')) return 'arrow-teal';
+        return 'arrow-cyan';
+    }
+
+    // 3. Theory Node Selection & Lineage Isolation
+    function selectTheoryNode(theoryId) {
+        activeSelectedTheoryId = theoryId;
+        const theory = theoriesMap[theoryId];
+        if (!theory) return;
+
+        // Update selection banner
+        document.getElementById('active-selection-label').innerHTML = `Focus: <span style="color:${theory.color}">${theory.name}</span>`;
+
+        // Highlight nodes & dim unrelated
+        const allCards = document.querySelectorAll('.theory-card');
+        const allPaths = document.querySelectorAll('.connector-path');
+
+        const ancestors = new Set(theory.predecessor_ids || []);
+        const descendants = new Set(theory.successor_ids || []);
+
+        allCards.forEach(card => {
+            const cid = card.getAttribute('data-theory-id');
+            card.classList.remove('highlight-target', 'highlight-ancestor', 'highlight-descendant', 'dimmed');
+
+            if (cid === theoryId) {
+                card.classList.add('highlight-target');
+            } else if (ancestors.has(cid)) {
+                card.classList.add('highlight-ancestor');
+            } else if (descendants.has(cid)) {
+                card.classList.add('highlight-descendant');
+            } else {
+                card.classList.add('dimmed');
+            }
+        });
+
+        // Filter connector paths
+        allPaths.forEach(p => {
+            const src = p.getAttribute('data-source');
+            const tgt = p.getAttribute('data-target');
+            p.classList.remove('dimmed');
+
+            const isDirectEdge = (src === theoryId || tgt === theoryId);
+            if (!isDirectEdge) {
+                p.classList.add('dimmed');
+            }
+        });
+
+        // Populate Inspector Drawer
+        populateInspector(theory);
+    }
+
+    function resetHighlights() {
+        activeSelectedTheoryId = null;
+        document.getElementById('active-selection-label').innerText = "Showing All 8 Theories";
+
+        document.querySelectorAll('.theory-card').forEach(c => {
+            c.classList.remove('highlight-target', 'highlight-ancestor', 'highlight-descendant', 'dimmed');
+        });
+        document.querySelectorAll('.connector-path').forEach(p => {
+            p.classList.remove('dimmed');
+        });
+
+        filterEra(activeEraFilter);
+    }
+
+    // 4. Populate Inspector Drawer
+    function populateInspector(theory) {
+        document.getElementById('inspector-placeholder').classList.add('hidden');
+        document.getElementById('inspector-active-data').classList.remove('hidden');
+
+        document.getElementById('inspect-code').innerText = theory.code;
+        document.getElementById('inspect-code').style.color = theory.color;
+        document.getElementById('inspect-year').innerText = theory.year_display;
+        document.getElementById('inspect-name').innerText = theory.name;
+        document.getElementById('inspect-authors').innerText = theory.authors;
+        document.getElementById('inspect-premise').innerText = theory.premise;
+
+        // LaTeX Formula
+        const formulaContainer = document.getElementById('inspect-formula');
+        formulaContainer.innerHTML = `$$${theory.core_formula}$$`;
+
+        // Symmetries
+        const symList = document.getElementById('inspect-symmetries');
+        symList.innerHTML = '';
+        (theory.symmetries || []).slice(0, 3).forEach(s => {
+            const li = document.createElement('li');
+            li.className = "truncate text-slate-300";
+            li.innerHTML = `&bull; ${s}`;
+            symList.appendChild(li);
+        });
+
+        // Invariants
+        const invList = document.getElementById('inspect-invariants');
+        invList.innerHTML = '';
+        (theory.invariants || []).slice(0, 3).forEach(i => {
+            const li = document.createElement('li');
+            li.className = "truncate text-slate-300";
+            li.innerHTML = `&bull; ${i}`;
+            invList.appendChild(li);
+        });
+
+        // Ancestors
+        const ancList = document.getElementById('inspect-ancestors-list');
+        ancList.innerHTML = '';
+        if (theory.predecessor_ids && theory.predecessor_ids.length > 0) {
+            theory.predecessor_ids.forEach(pid => {
+                const pt = theoriesMap[pid];
+                if (!pt) return;
+                const btn = document.createElement('button');
+                btn.className = "px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-emerald-400 border border-emerald-500/30 transition";
+                btn.innerText = `&larr; ${pt.short_name}`;
+                btn.onclick = () => selectTheoryNode(pid);
+                ancList.appendChild(btn);
+            });
+        } else {
+            ancList.innerHTML = '<span class="text-slate-500 text-[10px] italic">Foundational Axiom (None)</span>';
+        }
+
+        // Descendants
+        const descList = document.getElementById('inspect-successors-list');
+        descList.innerHTML = '';
+        if (theory.successor_ids && theory.successor_ids.length > 0) {
+            theory.successor_ids.forEach(sid => {
+                const st = theoriesMap[sid];
+                if (!st) return;
+                const btn = document.createElement('button');
+                btn.className = "px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-purple-400 border border-purple-500/30 transition";
+                btn.innerText = `${st.short_name} &rarr;`;
+                btn.onclick = () => selectTheoryNode(sid);
+                descList.appendChild(btn);
+            });
+        } else {
+            descList.innerHTML = '<span class="text-slate-500 text-[10px] italic">Terminal Frontier Node</span>';
+        }
+
+        // Link to Theory Library
+        document.getElementById('inspect-link-btn').href = `/theories/${theory.id}/`;
+
+        // Trigger MathJax re-render
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([formulaContainer]);
+        }
+    }
+
+    function closeInspector() {
+        document.getElementById('inspector-placeholder').classList.remove('hidden');
+        document.getElementById('inspector-active-data').classList.add('hidden');
+    }
+
+    // 5. Open Mathematical Bridge Modal
+    function openBridgeModal(edge) {
+        const modal = document.getElementById('bridge-modal');
+        const src = theoriesMap[edge.source] || { name: edge.source };
+        const tgt = theoriesMap[edge.target] || { name: edge.target };
+
+        document.getElementById('bridge-source-name').innerText = src.name;
+        document.getElementById('bridge-target-name').innerText = tgt.name;
+        document.getElementById('bridge-label').innerText = edge.label;
+        document.getElementById('bridge-description').innerText = edge.bridge_mechanism;
+
+        const fContainer = document.getElementById('bridge-formula-container');
+        fContainer.innerHTML = `$$${edge.formula}$$`;
+
+        document.getElementById('bridge-badge-color').style.backgroundColor = edge.color || '#38bdf8';
+
+        modal.classList.remove('hidden');
+
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([fContainer]);
+        }
+    }
+
+    function closeBridgeModal() {
+        document.getElementById('bridge-modal').classList.add('hidden');
+    }
+
+    // 6. Era Filter
+    function filterEra(eraId) {
+        activeEraFilter = eraId;
+        document.querySelectorAll('.era-btn').forEach(b => {
+            b.classList.remove('bg-purple-600', 'text-white', 'font-bold');
+            b.classList.add('text-slate-400');
+        });
+        const activeBtn = document.getElementById('era-btn-' + eraId);
+        if (activeBtn) {
+            activeBtn.classList.add('bg-purple-600', 'text-white', 'font-bold');
+            activeBtn.classList.remove('text-slate-400');
+        }
+
+        document.querySelectorAll('.theory-card').forEach(card => {
+            const cEra = card.getAttribute('data-era');
+            if (eraId === 'all' || cEra === eraId || card.id === 'card-synth_projected') {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // 7. Center view on Modern/Spaceflight Era
+    function centerTimeline() {
+        const viewport = document.getElementById('chrono-viewport');
+        viewport.scrollTo({ left: 1800, behavior: 'smooth' });
+    }
+
+    // 8. Trajectory Synthesizer Toggle & Handler
+    function toggleSynthesizerDrawer() {
+        const panel = document.getElementById('synthesizer-panel');
+        panel.classList.toggle('hidden');
+    }
+
+    async function handleSynthesize(e) {
+        e.preventDefault();
+        const form = document.getElementById('synth-form');
+        const formData = new FormData(form);
+
+        try {
+            const resp = await fetch("{% url 'oracle_engine' %}", {
+                method: "POST",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: formData
+            });
+
+            const data = await resp.json();
+            if (data.status === 'success' && data.projected_node) {
+                displayProjectedNode(data.projected_node);
+                toggleSynthesizerDrawer();
+            }
+        } catch (err) {
+            console.error("Trajectory synthesis error:", err);
+            form.submit(); // fallback to standard POST
+        }
+    }
+
+    function displayProjectedNode(proj) {
+        const card = document.getElementById('card-synth_projected');
+        const pos = theoryPositions["synth_projected"];
+
+        card.style.left = pos.x + 'px';
+        card.style.top = pos.y + 'px';
+        card.classList.remove('hidden');
+
+        document.getElementById('projected-title').innerText = proj.name;
+        document.getElementById('projected-year-badge').innerText = proj.year_display;
+        document.getElementById('projected-parents-desc').innerText = `Bridging: ${proj.parent_names.join(' + ')}`;
+        document.getElementById('projected-score-val').innerText = `${proj.score}%`;
+
+        const fContainer = document.getElementById('projected-formula-preview');
+        fContainer.innerHTML = `$$${proj.formula}$$`;
+
+        // Render synthetic dashed curves from parents to projected node
+        const futureGroup = document.getElementById('svg-future-paths-group');
+        futureGroup.innerHTML = '';
+
+        (proj.synthetic_edges || []).forEach(edge => {
+            const srcPos = theoryPositions[edge.source];
+            if (!srcPos) return;
+
+            const x1 = srcPos.x + 330;
+            const y1 = srcPos.y + (srcPos.y < 350 ? 180 : 40);
+            const x2 = pos.x;
+            const y2 = pos.y + 110;
+
+            const pathD = `M ${x1} ${y1} C ${x1 + 100} ${y1}, ${x2 - 100} ${y2}, ${x2} ${y2}`;
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("class", "connector-path flow-connector");
+            path.setAttribute("d", pathD);
+            path.setAttribute("stroke", "#f43f5e");
+            path.setAttribute("stroke-width", "3");
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke-opacity", "0.9");
+            path.setAttribute("marker-end", "url(#arrow-rose)");
+
+            futureGroup.appendChild(path);
+        });
+
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([fContainer]);
+        }
+
+        // Scroll to projected node
+        const viewport = document.getElementById('chrono-viewport');
+        viewport.scrollTo({ left: 2600, behavior: 'smooth' });
+    }
+</script>
 {% endblock %}
