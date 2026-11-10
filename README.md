@@ -1,19 +1,33 @@
 # Science Calculator Engine & StarTravel POC
 
-A rigorous mathematical physics and epistemic synthesis platform built on Django. The system bridges foundational theoretical physics (Analytical Mechanics, General Relativity, Gauge Field Theory, Operator Algebras) with empirical constraints and deep-space mission architectures.
+[![Python](https://img.shields.io/badge/Python-3.12%20%7C%203.13%20%7C%203.14-3776AB?logo=python&logoColor=white)](https://python.org)
+[![Django](https://img.shields.io/badge/Django-6.0+-092E20?logo=django&logoColor=white)](https://djangoproject.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Knowledge Base](https://img.shields.io/badge/Knowledge%20Base-416%20Topics%20%7C%201%2C330%20Equations-8A2BE2)](science_engine/fixtures/knowledge_base.json)
+[![Theoretical Timeline](https://img.shields.io/badge/Chronological%20Lineage-1687%20--%202026+-orange)](https://github.com/Alednam/StarTravel_POC)
+
+A rigorous mathematical physics and epistemic synthesis platform built on Django. The system bridges foundational theoretical physics (Analytical Mechanics, General Relativity, Gauge Field Theory, Operator Algebras) with empirical constraints, an interactive 340-year chronological connector graph, and deep-space mission architectures.
 
 ---
 
 ## Key Features
 
-* **Epistemic Knowledge Base:** Structured hierarchy of Subjects, Courses, Topics, Equations, and Theoretical Manuscripts.
+* **Oracle Chrono-Connector:**
+  * **Interactive Chronological Timeline (1687 – 2026+):** Visualizes the historical evolution of physics from Classical Mechanics to Relativistic Geometrodynamics, Quantum Formalisms, Gauge Symmetries, and Modern Spaceflight.
+  * **16 Directed Mathematical Bridges:** Bezier connector paths modeling exact formal derivations between theories with flowing transmission pulses.
+  * **Interactive Lineage Breadcrumb:** Isolates upstream foundations and downstream derivations in real time with dynamic pedigree trees.
+  * **Future Trajectory Projector:** Synthesizes multiple foundational theories to project future theoretical breakthroughs (c. 2045+) with computed coherence scores.
+  * **Dual View Modes:** Smooth-panning horizontal timeline rail with minimap navigation and a compact vertical step-ladder cascade.
+* **Epistemic Knowledge Base:**
+  * Structured database hierarchy encompassing **7 Subjects, 62 Courses, 416 Topics, 1,330 Equations, and 8 Formal Theoretical Manuscripts**.
+  * Complete, portable Django JSON fixture (`science_engine/fixtures/knowledge_base.json`) with auto-population on initialization.
 * **StarTravel POC (Phases I–IV):** 18 technical interactive schematics covering deep-space spaceflight:
-  * **Phase I: Propulsion:** Electrodynamic Tethers (EDT), Magnetic Sails, Alfvén Wave MHD Coupling, Relativistic Radiative Drives.
+  * **Phase I: Propulsion:** Electrodynamic Tethers (EDT), Magnetic Sails (Magsails), Alfvén Wave MHD Coupling, Relativistic Radiative Drives.
   * **Phase II: Navigation:** Pulsar Timing Arrays (PTA), Barycentric Vector Tracking, Relativistic Shapiro Delays.
   * **Phase III: Evolution:** Closed-loop Artificial Gravity, Radiation Shielding, Bio-Resonance Conditioning.
   * **Phase IV: Architecture:** Superconducting Magnetic Shielding, Field Coils, and Habitat Structural Symmetries.
-* **Oracle & Cross-Discipline Gap Analysis:** Automated identification of theoretical boundaries and cross-theory synthesis.
-* **Decoupled Architecture:** Secret keys, hostnames, and environments configured cleanly via `.env`.
+* **Cross-Discipline Gap Analysis:** Automated identification of theoretical boundaries, unproven axioms, and cross-theory synthesis opportunities.
+* **Decoupled Architecture:** Secret keys, hostnames, and environments decoupled cleanly via `.env` and `python-dotenv`.
 
 ---
 
@@ -136,5 +150,19 @@ The vector schematics and interactive diagrams can be regenerated at any time us
 ```bash
 ./venv/bin/python test_scripts/assemble_poc.py
 ```
+
+---
+
+## Scientific Domains & Research Topics
+
+The platform models and formalizes canonical mathematical relationships across the following foundational fields:
+
+* **Analytical Mechanics:** Variational principles ($\delta \int L \, dt = 0$), Hamilton-Jacobi dynamics, Poisson algebras, Liouville phase space measure invariance.
+* **Classical & Modern Thermodynamics:** Boltzmann microstate counting ($S = k_B \ln \Omega$), Clausius entropy, Landauer's thermodynamic erasure limit ($\Delta Q \ge k_B T \ln 2$), Bekenstein-Hawking black hole area-entropy bounds.
+* **General Relativity & Relativistic Astrophysics:** Einstein field equations ($G_{\mu\nu} = \kappa T_{\mu\nu}$), Schwarzschild metric, Kerr spinning metrics, gravitational Shapiro delay, ADM (3+1) hypersurface foliation ($ds^2 = -N^2 dt^2 + \gamma_{ij}(dx^i + N^i dt)(dx^j + N^j dt)$).
+* **Quantum Formalism & Open Systems:** Complex Hilbert spaces, self-adjoint operator algebras, von Neumann density matrices, Lindblad master equation for environmental decoherence, Zurek einselection of pointer states.
+* **Gauge Field Theory & Electroweak Symmetry:** Principal fiber bundles, Yang-Mills curvature 2-forms ($F_{\mu\nu}^a$), $SU(2)_L \times U(1)_Y$ electroweak unification, Brout-Englert-Higgs symmetry breaking, Ginzburg-Landau superconductivity.
+* **Deep Space Magnetospheric Flight:** Lorentz force propulsion ($\vec{F} = I (\vec{L} \times \vec{B})$), motional induction ($\mathcal{E} = \int (\vec{v} \times \vec{B}) \cdot d\vec{\ell}$), supersonic solar wind plasma deflection ($P_{\text{dyn}} \approx B^2/2\mu_0$), shear Alfvén wings, and millisecond pulsar vector navigation.
+* **Symplectic Invariants & Epistemic Synthesis:** Marsden-Weinstein reduction ($M_{\text{red}} = \mu^{-1}(0)/G$), Noether diffeomorphism invariants, 4PT probability tensor fields, and Invariant Universal Constraints (IUC).
 
 
