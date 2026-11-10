@@ -2,79 +2,100 @@
 
 {% block extra_head %}
 <style>
-    /* Timeline & Connector Graph Styles */
+    /* Custom Scrollbar for Chrono Viewport */
     .chrono-scroll {
         scrollbar-width: thin;
         scrollbar-color: #334155 #0b1120;
     }
     .chrono-scroll::-webkit-scrollbar {
-        height: 10px;
+        height: 8px;
+        width: 8px;
     }
     .chrono-scroll::-webkit-scrollbar-track {
         background: #0b1120;
     }
     .chrono-scroll::-webkit-scrollbar-thumb {
         background: #334155;
-        border-radius: 5px;
+        border-radius: 4px;
     }
     .chrono-scroll::-webkit-scrollbar-thumb:hover {
         background: #475569;
     }
 
-    /* Flowing dashed path animation */
+    /* Grab to Pan Cursor */
+    .pan-canvas {
+        cursor: grab;
+    }
+    .pan-canvas.grabbing {
+        cursor: grabbing;
+        user-select: none;
+    }
+
+    /* Flowing animated dash effect */
     @keyframes dashflow {
         to {
-            stroke-dashoffset: -40;
+            stroke-dashoffset: -32;
         }
     }
-    .flow-connector {
-        stroke-dasharray: 8 6;
-        animation: dashflow 1.8s linear infinite;
+    .flow-active {
+        stroke-dasharray: 6 5;
+        animation: dashflow 1.5s linear infinite;
     }
+
+    /* Connector Path Styles & Transitions */
     .connector-path {
-        transition: stroke-width 0.2s, stroke-opacity 0.2s, filter 0.2s;
+        transition: stroke-width 0.25s ease, stroke-opacity 0.25s ease, filter 0.25s ease;
+    }
+    .connector-path.spotlight-active {
+        stroke-width: 3.5px !important;
+        stroke-opacity: 0.95 !important;
+        filter: drop-shadow(0 0 6px currentColor);
+    }
+    .connector-path.spotlight-dimmed {
+        stroke-opacity: 0.05 !important;
     }
     .connector-path:hover {
-        stroke-width: 3.5px !important;
+        stroke-width: 4px !important;
         stroke-opacity: 1 !important;
-        filter: drop-shadow(0 0 8px currentColor);
+        filter: drop-shadow(0 0 10px currentColor);
         cursor: pointer;
     }
 
-    /* Node hover effects */
+    /* Card Transitions & Spotlight */
     .theory-card {
-        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s, opacity 0.3s, border-color 0.2s;
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s, opacity 0.25s, border-color 0.2s;
     }
     .theory-card:hover {
-        transform: translateY(-4px) scale(1.02);
+        transform: translateY(-4px);
     }
     .theory-card.dimmed {
-        opacity: 0.15 !important;
-        filter: grayscale(80%);
-    }
-    .connector-path.dimmed {
-        stroke-opacity: 0.06 !important;
+        opacity: 0.12 !important;
+        filter: grayscale(85%);
     }
     .theory-card.highlight-target {
-        box-shadow: 0 0 25px rgba(56, 189, 248, 0.5) !important;
+        box-shadow: 0 0 30px rgba(56, 189, 248, 0.5) !important;
         border-color: #38bdf8 !important;
+        transform: scale(1.03) translateY(-4px);
     }
     .theory-card.highlight-ancestor {
-        box-shadow: 0 0 25px rgba(16, 185, 129, 0.5) !important;
+        box-shadow: 0 0 25px rgba(16, 185, 129, 0.45) !important;
         border-color: #10b981 !important;
     }
     .theory-card.highlight-descendant {
-        box-shadow: 0 0 25px rgba(168, 85, 247, 0.5) !important;
+        box-shadow: 0 0 25px rgba(168, 85, 247, 0.45) !important;
         border-color: #a855f7 !important;
     }
 
-    /* Pulse animation */
-    @keyframes pulse-subtle {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.85; transform: scale(1.03); }
-    }
-    .pulse-glow {
-        animation: pulse-subtle 3s ease-in-out infinite;
+    /* Minimap Viewport Indicator */
+    .minimap-slider {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        background: rgba(168, 85, 247, 0.2);
+        border: 1px solid rgba(168, 85, 247, 0.6);
+        border-radius: 4px;
+        cursor: grab;
+        transition: width 0.1s ease;
     }
 </style>
 {% endblock %}
@@ -82,105 +103,141 @@
 {% block content %}
 <div class="flex flex-col h-full w-full bg-slate-950 font-mono select-none overflow-hidden text-slate-200">
 
-    <!-- Top Command & Control Bar -->
-    <header class="h-16 bg-slate-900/90 border-b border-slate-800 px-6 flex items-center justify-between shrink-0 z-20 backdrop-blur">
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2">
-                <span class="p-2 rounded-lg bg-purple-950/60 border border-purple-500/40 text-purple-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                </span>
-                <div>
-                    <h1 class="text-sm font-bold text-white tracking-widest uppercase flex items-center gap-2">
-                        ORACLE CHRONO-CONNECTOR
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950 border border-purple-500/30 text-purple-300">
-                            LINEAR & RELATIONAL GRAPH
-                        </span>
-                    </h1>
-                    <p class="text-[11px] text-slate-400">Chronological formulation & mathematical derivation web (1687 – 2026+)</p>
+    <!-- Top Navigation & Control Header -->
+    <header class="h-16 bg-slate-900/95 border-b border-slate-800 px-5 flex items-center justify-between shrink-0 z-30 backdrop-blur">
+        <!-- Brand & Title -->
+        <div class="flex items-center gap-3">
+            <span class="p-2 rounded-lg bg-purple-950/70 border border-purple-500/40 text-purple-400 shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </span>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-sm font-bold text-white tracking-widest uppercase">ORACLE CHRONO-CONNECTOR</h1>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950 border border-purple-500/30 text-purple-300">
+                        1687 – 2026+
+                    </span>
                 </div>
-            </div>
-
-            <!-- Stats Pills -->
-            <div class="hidden md:flex items-center gap-2 text-xs ml-4">
-                <span class="px-2.5 py-1 bg-slate-800/80 border border-slate-700/80 rounded-full text-slate-300">
-                    <strong class="text-cyan-400">{{ timeline_data.theories|length }}</strong> Theories
-                </span>
-                <span class="px-2.5 py-1 bg-slate-800/80 border border-slate-700/80 rounded-full text-slate-300">
-                    <strong class="text-purple-400">{{ timeline_data.edges|length }}</strong> Verified Bridges
-                </span>
-                <span class="px-2.5 py-1 bg-slate-800/80 border border-slate-700/80 rounded-full text-slate-300">
-                    <strong class="text-amber-400">340+</strong> Years of Evolution
-                </span>
+                <p class="text-[11px] text-slate-400">Formal Lineage & Mathematical Derivation Web</p>
             </div>
         </div>
 
-        <!-- Controls: Eras Filter & Actions -->
-        <div class="flex items-center gap-2">
-            <!-- Era Filter Pills -->
-            <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
-                {% for era in eras %}
-                <button onclick="filterEra('{{ era.id }}')" id="era-btn-{{ era.id }}"
-                    class="era-btn px-2.5 py-1 rounded transition font-medium {% if era.id == 'all' %}bg-purple-600 text-white font-bold{% else %}text-slate-400 hover:text-white hover:bg-slate-800{% endif %}">
-                    {{ era.name }}
+        <!-- Center Controls: Search + View Switcher -->
+        <div class="flex items-center gap-3">
+            <!-- Quick Search Bar -->
+            <div class="relative w-56 lg:w-72">
+                <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" id="theory-search-input" onkeyup="handleQuickSearch(event)"
+                       placeholder="Find theory, author, formula (Ctrl+K)..."
+                       class="w-full pl-8 pr-7 py-1.5 bg-slate-950 border border-slate-700/80 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
+                <button onclick="clearSearch()" id="search-clear-btn" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-white hidden">
+                    &times;
                 </button>
-                {% endfor %}
             </div>
 
-            <!-- Trajectory Synthesizer Toggle -->
-            <button onclick="toggleSynthesizerDrawer()" class="px-3 py-1.5 bg-purple-900/40 hover:bg-purple-900/70 border border-purple-500/40 text-purple-300 hover:text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition">
-                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                <span>Synthesize Future</span>
-            </button>
+            <!-- View Layout Toggle: Horizontal Timeline vs Vertical Step-Ladder -->
+            <div class="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
+                <button onclick="switchViewMode('horizontal')" id="view-mode-horizontal-btn"
+                        class="px-2.5 py-1 rounded transition font-bold bg-purple-600 text-white flex items-center gap-1.5"
+                        title="Horizontal Chronological Timeline with SVG Bezier Connectors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                    <span>Timeline Rail</span>
+                </button>
+                <button onclick="switchViewMode('vertical')" id="view-mode-vertical-btn"
+                        class="px-2.5 py-1 rounded transition text-slate-400 hover:text-white flex items-center gap-1.5"
+                        title="Compact Step-Ladder Cascade (No horizontal scrolling)">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <span>Step-Ladder Flow</span>
+                </button>
+            </div>
 
-            <!-- Reset Graph View -->
-            <button onclick="resetHighlights()" title="Reset Highlight Filters" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <!-- Spotlight Toggle -->
+            <button onclick="toggleSpotlightMode()" id="spotlight-btn"
+                    class="px-2.5 py-1 rounded-lg border border-slate-700 text-xs text-cyan-400 bg-slate-950 hover:bg-slate-800 flex items-center gap-1.5 transition"
+                    title="Spotlight: Focus only on active ancestry and dim background clutter">
+                <span id="spotlight-dot" class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                <span id="spotlight-label">Spotlight: ON</span>
+            </button>
+        </div>
+
+        <!-- Right Side: Zoom Controls & Future Projector -->
+        <div class="flex items-center gap-2">
+            <!-- Zoom Controls -->
+            <div class="flex items-center bg-slate-950 rounded-lg border border-slate-800 p-0.5 text-xs text-slate-400">
+                <button onclick="adjustZoom(-0.15)" class="px-2 py-1 hover:text-white hover:bg-slate-800 rounded font-mono font-bold" title="Zoom Out">&minus;</button>
+                <span id="zoom-level-text" class="px-2 py-1 font-mono text-[11px] text-slate-300">100%</span>
+                <button onclick="adjustZoom(0.15)" class="px-2 py-1 hover:text-white hover:bg-slate-800 rounded font-mono font-bold" title="Zoom In">&plus;</button>
+                <button onclick="resetZoom()" class="px-2 py-1 hover:text-white hover:bg-slate-800 rounded text-[10px] border-l border-slate-800" title="Fit to 100%">Reset</button>
+            </div>
+
+            <!-- Future Trajectory Synthesizer Button -->
+            <button onclick="toggleSynthesizerDrawer()" class="px-3 py-1.5 bg-rose-900/40 hover:bg-rose-900/70 border border-rose-500/40 text-rose-300 hover:text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition">
+                <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                <span>Project Future</span>
             </button>
         </div>
     </header>
 
-    <!-- Main Workspace -->
+    <!-- Interactive Lineage Breadcrumb Bar (Visible when any theory is selected) -->
+    <div id="breadcrumb-strip" class="bg-slate-900/90 border-b border-slate-800/80 px-6 py-2 flex items-center justify-between text-xs shrink-0 z-20 backdrop-blur transition-all">
+        <div class="flex items-center gap-2 overflow-x-auto chrono-scroll py-0.5 max-w-5xl">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 shrink-0">Pedigree Chain:</span>
+            <div id="breadcrumb-pills-container" class="flex items-center gap-1.5 shrink-0">
+                <!-- Dynamically populated lineage pills -->
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0 ml-4">
+            <span id="active-lineage-stats" class="text-[11px] text-slate-400 font-mono"></span>
+            <button onclick="resetHighlights()" class="text-[11px] text-purple-400 hover:text-purple-300 underline font-mono">Show All 8</button>
+        </div>
+    </div>
+
+    <!-- Era & Bridge Filter Sub-Bar -->
+    <div class="bg-slate-950/80 border-b border-slate-800/60 px-6 py-1.5 flex items-center justify-between text-[11px] shrink-0 z-10">
+        <!-- Era Filter Tabs -->
+        <div class="flex items-center gap-1.5 overflow-x-auto">
+            <span class="text-slate-500 uppercase tracking-wider text-[10px] font-bold mr-1">Epochs:</span>
+            {% for era in eras %}
+            <button onclick="filterEra('{{ era.id }}')" id="era-btn-{{ era.id }}"
+                    class="era-btn px-2.5 py-0.5 rounded text-[11px] transition font-medium {% if era.id == 'all' %}bg-purple-600/80 text-white font-bold{% else %}text-slate-400 hover:text-white hover:bg-slate-800/80{% endif %}">
+                {{ era.name }} ({{ era.range }})
+            </button>
+            {% endfor %}
+        </div>
+
+        <!-- Bridge Category Filter -->
+        <div class="hidden xl:flex items-center gap-1.5 text-slate-400">
+            <span class="text-slate-500 uppercase tracking-wider text-[10px] font-bold mr-1">Bridge Types:</span>
+            <button onclick="filterBridgeCategory('all')" id="bridge-filter-all" class="bridge-filter-btn px-2 py-0.5 rounded bg-slate-800 text-white font-bold text-[10px]">All (16)</button>
+            <button onclick="filterBridgeCategory('canonical')" id="bridge-filter-canonical" class="bridge-filter-btn px-2 py-0.5 rounded text-emerald-400 hover:bg-slate-800 text-[10px]">Quantization</button>
+            <button onclick="filterBridgeCategory('geometric')" id="bridge-filter-geometric" class="bridge-filter-btn px-2 py-0.5 rounded text-indigo-400 hover:bg-slate-800 text-[10px]">Geometry</button>
+            <button onclick="filterBridgeCategory('gauge')" id="bridge-filter-gauge" class="bridge-filter-btn px-2 py-0.5 rounded text-sky-400 hover:bg-slate-800 text-[10px]">Gauge/Yang-Mills</button>
+            <button onclick="filterBridgeCategory('foliation')" id="bridge-filter-foliation" class="bridge-filter-btn px-2 py-0.5 rounded text-purple-400 hover:bg-slate-800 text-[10px]">ADM/Decoherence</button>
+            <button onclick="filterBridgeCategory('spaceflight')" id="bridge-filter-spaceflight" class="bridge-filter-btn px-2 py-0.5 rounded text-teal-400 hover:bg-slate-800 text-[10px]">Spaceflight</button>
+        </div>
+    </div>
+
+    <!-- Master Content Body -->
     <div class="flex-1 flex overflow-hidden relative">
 
-        <!-- Central Timeline & Connector Graph Canvas Container -->
-        <main class="flex-1 flex flex-col overflow-hidden relative">
+        <!-- ============================================================== -->
+        <!-- VIEW MODE 1: HORIZONTAL TIMELINE RAIL WITH SVG BEZIER CURVES   -->
+        <!-- ============================================================== -->
+        <main id="horizontal-timeline-view" class="flex-1 flex flex-col overflow-hidden relative">
 
-            <!-- Legend & Interactive Hint Banner -->
-            <div class="h-10 bg-slate-900/60 border-b border-slate-800/80 px-6 flex items-center justify-between text-[11px] text-slate-400 shrink-0 z-10">
-                <div class="flex items-center gap-4">
-                    <span class="text-slate-500 flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block animate-ping"></span>
-                        Click node to isolate upstream parents (cyan) & downstream descendants (purple)
-                    </span>
-                    <span class="hidden lg:inline text-slate-600">|</span>
-                    <span class="hidden lg:flex items-center gap-2">
-                        <span class="inline-block w-4 h-0.5 bg-amber-400"></span> Classical
-                        <span class="inline-block w-4 h-0.5 bg-indigo-400"></span> Relativistic
-                        <span class="inline-block w-4 h-0.5 bg-emerald-400"></span> Quantum
-                        <span class="inline-block w-4 h-0.5 bg-sky-400"></span> Gauge
-                        <span class="inline-block w-4 h-0.5 bg-purple-400"></span> Foliation
-                        <span class="inline-block w-4 h-0.5 bg-teal-400"></span> Spaceflight
-                    </span>
-                </div>
+            <!-- Pan & Scroll Viewport -->
+            <div id="chrono-viewport" class="pan-canvas flex-1 overflow-x-auto overflow-y-auto chrono-scroll relative bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px]">
 
-                <div class="flex items-center gap-3">
-                    <span id="active-selection-label" class="text-purple-400 font-bold">Showing All 8 Theories</span>
-                    <button onclick="centerTimeline()" class="text-[11px] text-slate-400 hover:text-white underline">Scroll to Modern Era</button>
-                </div>
-            </div>
+                <!-- Master Graph Canvas (Zoomable wrapper) -->
+                <div id="chrono-canvas" class="relative w-[3400px] h-[780px] p-8 origin-top-left transition-transform duration-100 ease-out">
 
-            <!-- Scrollable Timeline Canvas Area -->
-            <div id="chrono-viewport" class="flex-1 overflow-x-auto overflow-y-auto chrono-scroll relative bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px]">
-
-                <!-- Master Graph Canvas: Width accommodates 8 theories chronologically from 1687 to 2045+ -->
-                <div id="chrono-canvas" class="relative w-[3400px] h-[780px] p-8">
-
-                    <!-- SVG Layer for Directed Connector Curves (Behind Theory Cards) -->
+                    <!-- SVG Layer for Directed Curved Connectors -->
                     <svg id="connector-svg" class="absolute inset-0 w-full h-full pointer-events-auto" style="z-index: 5;">
                         <defs>
-                            <!-- Markers for directed connector arrows -->
                             <marker id="arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                                 <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#38bdf8" />
                             </marker>
@@ -201,15 +258,14 @@
                             </marker>
                         </defs>
 
-                        <!-- Dynamic Curves will be drawn via JavaScript -->
+                        <!-- Dynamic Connectors -->
                         <g id="svg-paths-group"></g>
-                        <!-- Dynamic Projected Future Curves -->
+                        <!-- Future Projected Connectors -->
                         <g id="svg-future-paths-group"></g>
                     </svg>
 
                     <!-- Horizontal Chronological Timeline Axis Rail -->
                     <div class="absolute left-8 right-8 top-[380px] h-2 bg-slate-800 rounded-full border border-slate-700/60 pointer-events-none" style="z-index: 1;">
-                        <!-- Glowing Center Rail -->
                         <div class="h-full w-full bg-gradient-to-r from-amber-500/20 via-sky-500/30 to-teal-500/30 rounded-full"></div>
                         
                         <!-- Milestones / Year Ticks -->
@@ -221,15 +277,14 @@
                             <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-sky-400">1967: Electroweak Gauge</span>
                             <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-purple-400">1981: 4PT & Foliation</span>
                             <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-pink-400">1995: IUC Invariants</span>
-                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-teal-400">2026: Magnetospheric Flight</span>
-                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-pink-800 text-rose-400">2045+: Horizon</span>
+                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-teal-400">2026: Spaceflight POC</span>
+                            <span class="relative -top-6 bg-slate-900 px-2 py-0.5 rounded border border-rose-800 text-rose-400">2045+: Horizon</span>
                         </div>
                     </div>
 
-                    <!-- Theory Nodes Container (Cards rendered chronologically) -->
+                    <!-- Theory Cards Layer -->
                     <div id="theory-nodes-layer" class="relative w-full h-full pointer-events-none" style="z-index: 10;">
                         {% for theory in theories %}
-                        <!-- Card rendered and positioned according to chronological slot -->
                         <div id="card-{{ theory.id }}"
                              data-theory-id="{{ theory.id }}"
                              data-era="{{ theory.era_id }}"
@@ -238,7 +293,7 @@
                              class="theory-card pointer-events-auto absolute w-[330px] bg-slate-900/95 border-2 rounded-xl p-4 shadow-xl cursor-pointer backdrop-blur"
                              style="border-color: {{ theory.color }};">
                              
-                            <!-- Header: Code, Era, Year -->
+                            <!-- Card Header -->
                             <div class="flex items-center justify-between mb-2">
                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono tracking-wider bg-slate-950 border border-slate-800"
                                       style="color: {{ theory.color }};">
@@ -249,7 +304,7 @@
                                 </span>
                             </div>
 
-                            <!-- Title & Subtitle -->
+                            <!-- Title & Authors -->
                             <h3 class="text-sm font-bold text-white tracking-wide leading-tight mb-1">
                                 {{ theory.name }}
                             </h3>
@@ -268,10 +323,10 @@
                                     {{ theory.badge }}
                                 </span>
                                 <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono" title="Incoming ancestor connections">
+                                    <span class="px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 font-mono" title="Incoming ancestor foundations">
                                         &larr; {{ theory.predecessor_ids|length }}
                                     </span>
-                                    <span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono" title="Outgoing descendant connections">
+                                    <span class="px-1.5 py-0.5 rounded bg-slate-800 text-purple-400 font-mono" title="Outgoing descendant derivations">
                                         {{ theory.successor_ids|length }} &rarr;
                                     </span>
                                 </div>
@@ -279,7 +334,7 @@
                         </div>
                         {% endfor %}
 
-                        <!-- Projected Future Node Placeholder -->
+                        <!-- Projected Horizon Node -->
                         <div id="card-synth_projected"
                              class="theory-card pointer-events-auto absolute w-[330px] bg-slate-900/95 border-2 border-dashed border-rose-500 rounded-xl p-4 shadow-[0_0_35px_rgba(244,63,94,0.3)] cursor-pointer backdrop-blur hidden">
                             <div class="flex items-center justify-between mb-2">
@@ -304,17 +359,103 @@
                                 <span class="underline">Inspect Horizon</span>
                             </div>
                         </div>
-
                     </div>
+                </div>
+            </div>
+
+            <!-- Interactive Minimap Navigation Strip at Bottom -->
+            <div class="h-12 bg-slate-950 border-t border-slate-800/80 px-6 flex items-center gap-4 shrink-0 z-20">
+                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider shrink-0">Minimap:</span>
+                
+                <div id="minimap-track" onclick="handleMinimapClick(event)" class="relative flex-1 h-5 bg-slate-900 border border-slate-800 rounded cursor-pointer overflow-hidden">
+                    <!-- Century Gridlines on Minimap -->
+                    <div class="absolute inset-0 flex justify-between px-2 text-[8px] text-slate-600 font-mono items-center pointer-events-none">
+                        <span>1687</span>
+                        <span>1850</span>
+                        <span>1915</span>
+                        <span>1925</span>
+                        <span>1967</span>
+                        <span>1981</span>
+                        <span>1995</span>
+                        <span>2026</span>
+                    </div>
+
+                    <!-- Glowing Dots for all Theories on Minimap -->
+                    {% for theory in theories %}
+                    <div class="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full pointer-events-none"
+                         style="left: calc(({{ forloop.counter0 }} * 12.5%) + 3%); background-color: {{ theory.color }}; box-shadow: 0 0 6px {{ theory.color }};"></div>
+                    {% endfor %}
+
+                    <!-- Viewport Position Indicator Box -->
+                    <div id="minimap-viewport-slider" class="minimap-slider" style="left: 0%; width: 25%;"></div>
+                </div>
+
+                <div class="flex items-center gap-2 text-[10px] text-slate-500 shrink-0 font-mono">
+                    <span class="hidden sm:inline">Drag canvas to pan &bull; Click card to trace lineage</span>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ============================================================== -->
+        <!-- VIEW MODE 2: VERTICAL STEP-LADDER CASCADE (COMPACT/NO SCROLL)  -->
+        <!-- ============================================================== -->
+        <main id="vertical-stepladder-view" class="flex-1 overflow-y-auto chrono-scroll p-6 bg-slate-950 hidden">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <div class="border-b border-slate-800 pb-3 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-sm font-bold text-white uppercase tracking-wider">Step-Ladder Epistemic Derivation Flow</h2>
+                        <p class="text-xs text-slate-400">Sequential vertical cascade from foundational mechanics to modern deep spaceflight.</p>
+                    </div>
+                    <span class="text-xs font-mono text-purple-400">8 Cumulative Steps</span>
+                </div>
+
+                <div class="relative border-l-2 border-slate-800 ml-4 pl-6 space-y-8">
+                    {% for theory in theories %}
+                    <div class="relative group cursor-pointer" onclick="selectTheoryNode('{{ theory.id }}')">
+                        <!-- Step Icon Indicator -->
+                        <div class="absolute -left-[35px] top-1.5 w-6 h-6 rounded-full bg-slate-900 border-2 flex items-center justify-center text-[10px] font-bold text-white shadow"
+                             style="border-color: {{ theory.color }};">
+                            {{ forloop.counter }}
+                        </div>
+
+                        <!-- Step Card -->
+                        <div class="bg-slate-900/90 border border-slate-800 hover:border-purple-500/50 rounded-xl p-5 shadow-lg transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-bold font-mono px-2 py-0.5 rounded" style="background-color: {{ theory.color }}20; color: {{ theory.color }};">
+                                        {{ theory.year_display }}
+                                    </span>
+                                    <h3 class="text-sm font-bold text-white">{{ theory.name }}</h3>
+                                </div>
+                                <span class="text-[10px] font-mono text-slate-400">{{ theory.code }}</span>
+                            </div>
+
+                            <p class="text-xs text-slate-300 font-sans leading-relaxed mb-3">{{ theory.premise }}</p>
+
+                            <div class="p-2.5 bg-slate-950 rounded border border-slate-800 text-xs text-center text-slate-300 mb-3">
+                                $${{ theory.core_formula }}$$
+                            </div>
+
+                            <div class="flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-800/80 pt-2 font-mono">
+                                <span>Authors: <strong class="text-slate-300">{{ theory.authors }}</strong></span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-emerald-400">&larr; {{ theory.predecessor_ids|length }} Parents</span>
+                                    <span class="text-purple-400">{{ theory.successor_ids|length }} Children &rarr;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </main>
 
-        <!-- Right Side: Deep Theory Inspector Drawer (Collapsible) -->
-        <aside id="inspector-drawer" class="w-96 bg-slate-900 border-l border-slate-800 flex flex-col shrink-0 overflow-hidden shadow-2xl transition-all duration-300 z-30">
+        <!-- Right Side: Deep Theory Inspector Drawer -->
+        <aside id="inspector-drawer" class="w-96 bg-slate-900 border-l border-slate-800 flex flex-col shrink-0 overflow-hidden shadow-2xl z-20">
             <div class="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                    <span id="inspect-header-dot" class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
                     <h2 class="text-xs font-bold uppercase tracking-wider text-white">Theory Inspector</h2>
                 </div>
                 <button onclick="closeInspector()" class="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white">
@@ -322,18 +463,15 @@
                 </button>
             </div>
 
-            <!-- Scrollable Content of Selected Theory -->
             <div id="inspector-content" class="flex-1 overflow-y-auto p-5 space-y-6 text-xs font-mono">
-                <!-- Placeholder when no theory is active -->
                 <div id="inspector-placeholder" class="h-full flex flex-col items-center justify-center text-center text-slate-500 py-12">
                     <svg class="w-12 h-12 mb-3 opacity-30 text-purple-400 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <circle cx="12" cy="12" r="9" stroke-width="2" stroke-dasharray="8 6"></circle>
                     </svg>
                     <p class="text-sm font-bold text-slate-400 mb-1">Select a Theory Node</p>
-                    <p class="text-[11px] max-w-[200px]">Click any card on the timeline to inspect its mathematical state space, symmetries, and connector derivations.</p>
+                    <p class="text-[11px] max-w-[200px]">Click any card to inspect mathematical state space, symmetries, and derivations.</p>
                 </div>
 
-                <!-- Active Details Container (Populated by JS) -->
                 <div id="inspector-active-data" class="hidden space-y-5">
                     <div>
                         <div class="flex items-center justify-between mb-1">
@@ -368,11 +506,11 @@
                         </div>
                     </div>
 
-                    <!-- Direct Lineage: Ancestors & Successors -->
+                    <!-- Lineage: Parents & Children -->
                     <div class="space-y-3 pt-2 border-t border-slate-800">
                         <div>
                             <span class="text-[10px] font-bold uppercase text-slate-500 tracking-wider block mb-1.5 flex items-center gap-1">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Upstream Ancestors (Foundations)
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Direct Foundations (Ancestors)
                             </span>
                             <div id="inspect-ancestors-list" class="flex flex-wrap gap-1.5"></div>
                         </div>
@@ -385,7 +523,6 @@
                         </div>
                     </div>
 
-                    <!-- Deep Link to Theory Library -->
                     <div class="pt-2">
                         <a id="inspect-link-btn" href="#" class="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-center block text-xs tracking-wider transition">
                             OPEN IN THEORY LIBRARY &rarr;
@@ -397,7 +534,7 @@
 
     </div>
 
-    <!-- Slide-Up Trajectory Synthesizer Panel (Active Tool) -->
+    <!-- Future Trajectory Synthesizer Panel -->
     <div id="synthesizer-panel" class="bg-slate-900 border-t border-slate-800 p-6 shadow-2xl transition-all duration-300 z-30 shrink-0 hidden">
         <div class="max-w-6xl mx-auto">
             <div class="flex items-center justify-between mb-4">
@@ -416,19 +553,17 @@
             </div>
 
             <form id="synth-form" onsubmit="handleSynthesize(event)" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Hypothesis / Event Input -->
                 <div class="md:col-span-1 space-y-2">
-                    <label class="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">Future Breakthrough / Event</label>
+                    <label class="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">Breakthrough / Event Hypothesis</label>
                     <input type="text" id="synth-hypothesis" name="hypothesis"
                            placeholder="e.g., Quantum Magnetospheric Warp Coupling..."
                            value="{{ current_hypothesis|default:'Quantum Magnetospheric Propulsion & Decoherence Shield' }}"
                            class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs text-white focus:border-rose-500 focus:outline-none placeholder-slate-600">
-                    <p class="text-[10px] text-slate-500 font-sans">The Oracle will project where this breakthrough sits and graph its mathematical ancestry.</p>
+                    <p class="text-[10px] text-slate-500 font-sans">Projects where this breakthrough sits and graphs its mathematical ancestry.</p>
                 </div>
 
-                <!-- Theory Multi-Selector Checkboxes -->
                 <div class="md:col-span-2 space-y-2">
-                    <label class="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">Select Foundational Parent Theories (Ancestors)</label>
+                    <label class="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">Select Foundational Parent Theories</label>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         {% for theory in theories %}
                         <label class="flex items-center p-2 rounded bg-slate-950 border border-slate-800 hover:border-purple-500/50 cursor-pointer text-[11px] transition">
@@ -441,7 +576,7 @@
                     </div>
 
                     <div class="flex items-center justify-between pt-2">
-                        <span class="text-[11px] text-slate-400 font-sans">Selected theories will be linked via dynamic animated connector edges.</span>
+                        <span class="text-[11px] text-slate-400 font-sans">Creates dynamic animated connector curves to the projected node.</span>
                         <button type="submit" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-lg text-xs tracking-wider transition shadow-lg flex items-center gap-2">
                             <span>PROJECT FUTURE HORIZON</span> &rarr;
                         </button>
@@ -451,7 +586,7 @@
         </div>
     </div>
 
-    <!-- Mathematical Bridge Details Modal (Triggered by clicking any connector curve) -->
+    <!-- Mathematical Bridge Details Modal -->
     <div id="bridge-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -464,21 +599,18 @@
                 </button>
             </div>
 
-            <!-- Connection Header -->
             <div class="flex items-center justify-between text-xs font-bold text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800">
                 <span id="bridge-source-name" class="text-cyan-400">Source</span>
                 <span class="text-slate-500">&xrarr;</span>
                 <span id="bridge-target-name" class="text-purple-400">Target</span>
             </div>
 
-            <!-- Bridge Mechanism Description -->
             <div>
                 <span class="text-[10px] font-bold uppercase text-slate-500 tracking-wider block mb-1">Bridge Principle</span>
                 <h4 id="bridge-label" class="text-sm font-bold text-white mb-2"></h4>
                 <p id="bridge-description" class="text-xs text-slate-300 font-sans leading-relaxed bg-slate-950 p-3 rounded-lg border border-slate-800/80"></p>
             </div>
 
-            <!-- Bridging Formula -->
             <div>
                 <span class="text-[10px] font-bold uppercase text-slate-500 tracking-wider block mb-1">Coupling Formula</span>
                 <div id="bridge-formula-container" class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-center text-xs text-white"></div>
@@ -496,16 +628,19 @@
 {{ timeline_json|json_script:"timeline-data-island" }}
 
 <script>
-    // Load timeline graph data from server
+    // State & Graph Data
     const timelineData = JSON.parse(document.getElementById('timeline-data-island').textContent);
     const theoriesMap = {};
     timelineData.theories.forEach(t => { theoriesMap[t.id] = t; });
 
     let activeSelectedTheoryId = null;
     let activeEraFilter = 'all';
+    let activeBridgeCategory = 'all';
+    let isSpotlightMode = true;
+    let currentZoom = 1.0;
+    let activeViewMode = 'horizontal';
 
-    // Chronological slot positions along canvas
-    // Width: 3400px. Theories placed sequentially according to historical progression.
+    // Theory Canvas Positions (Sequence spanning 3400px width)
     const theoryPositions = {
         "scraped_scientific_laws": { x: 80,   y: 110, track: "top" },
         "Thermodynamics_Information": { x: 440,  y: 470, track: "bottom" },
@@ -521,12 +656,15 @@
     document.addEventListener('DOMContentLoaded', () => {
         positionTheoryNodes();
         renderConnectorCurves();
-        
-        // Auto-select initial theory (Quantum Mechanics) for rich initial presentation
+        setupDragToPan();
+        setupMinimap();
+        setupKeyboardShortcuts();
+
+        // Default focus: Quantum Mechanics for rich initial pedigree
         selectTheoryNode("Quantum_Mechanics");
     });
 
-    // 1. Position Cards according to chronological layout
+    // 1. Positioning cards on horizontal timeline
     function positionTheoryNodes() {
         timelineData.theories.forEach(t => {
             const card = document.getElementById('card-' + t.id);
@@ -538,7 +676,7 @@
         });
     }
 
-    // 2. Draw curved SVG connectors between theories
+    // 2. Render SVG Bezier Connector Curves
     function renderConnectorCurves() {
         const svgGroup = document.getElementById('svg-paths-group');
         svgGroup.innerHTML = '';
@@ -548,8 +686,6 @@
             const tgtPos = theoryPositions[edge.target];
             if (!srcPos || !tgtPos) return;
 
-            // Compute connection anchor coordinates
-            // Card width: 330px, height ~ 220px
             const isSrcTop = srcPos.y < 350;
             const isTgtTop = tgtPos.y < 350;
 
@@ -559,7 +695,6 @@
             const x2 = tgtPos.x;
             const y2 = tgtPos.y + (isTgtTop ? 180 : 40);
 
-            // Compute smooth cubic bezier control points
             const dx = Math.max(80, (x2 - x1) * 0.5);
             const cx1 = x1 + dx;
             const cy1 = y1 + (isSrcTop ? 60 : -60);
@@ -568,24 +703,22 @@
 
             const pathD = `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
 
-            // Create SVG path element
             const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
             path.setAttribute("id", `path-${edge.id}`);
-            path.setAttribute("class", "connector-path flow-connector");
+            path.setAttribute("class", "connector-path");
             path.setAttribute("d", pathD);
             path.setAttribute("stroke", edge.color || "#38bdf8");
-            path.setAttribute("stroke-width", "2.2");
+            path.setAttribute("stroke-width", "2");
             path.setAttribute("fill", "none");
-            path.setAttribute("stroke-opacity", "0.75");
+            path.setAttribute("stroke-opacity", isSpotlightMode ? "0.15" : "0.7");
             path.setAttribute("data-source", edge.source);
             path.setAttribute("data-target", edge.target);
             path.setAttribute("data-edge-id", edge.id);
+            path.setAttribute("data-relation", edge.relation_type || "general");
 
-            // Set appropriate arrowhead marker
             const markerName = getMarkerForColor(edge.color);
             path.setAttribute("marker-end", `url(#${markerName})`);
 
-            // Interactive click on curve opens Bridge details modal
             path.addEventListener('click', (e) => {
                 e.stopPropagation();
                 openBridgeModal(edge);
@@ -607,23 +740,17 @@
         return 'arrow-cyan';
     }
 
-    // 3. Theory Node Selection & Lineage Isolation
+    // 3. Selection, Spotlight & Lineage Highlighting
     function selectTheoryNode(theoryId) {
         activeSelectedTheoryId = theoryId;
         const theory = theoriesMap[theoryId];
         if (!theory) return;
 
-        // Update selection banner
-        document.getElementById('active-selection-label').innerHTML = `Focus: <span style="color:${theory.color}">${theory.name}</span>`;
-
-        // Highlight nodes & dim unrelated
-        const allCards = document.querySelectorAll('.theory-card');
-        const allPaths = document.querySelectorAll('.connector-path');
-
         const ancestors = new Set(theory.predecessor_ids || []);
         const descendants = new Set(theory.successor_ids || []);
 
-        allCards.forEach(card => {
+        // Highlight Cards
+        document.querySelectorAll('.theory-card').forEach(card => {
             const cid = card.getAttribute('data-theory-id');
             card.classList.remove('highlight-target', 'highlight-ancestor', 'highlight-descendant', 'dimmed');
 
@@ -633,46 +760,351 @@
                 card.classList.add('highlight-ancestor');
             } else if (descendants.has(cid)) {
                 card.classList.add('highlight-descendant');
+            } else if (isSpotlightMode) {
+                card.classList.add('dimmed');
+            }
+        });
+
+        // Highlight Connectors
+        document.querySelectorAll('.connector-path').forEach(p => {
+            const src = p.getAttribute('data-source');
+            const tgt = p.getAttribute('data-target');
+            p.classList.remove('spotlight-active', 'spotlight-dimmed', 'flow-active');
+
+            if (tgt === theoryId) {
+                // Incoming parent bridge (cyan/emerald)
+                p.classList.add('spotlight-active', 'flow-active');
+            } else if (src === theoryId) {
+                // Outgoing child bridge (purple/rose)
+                p.classList.add('spotlight-active', 'flow-active');
+            } else if (isSpotlightMode) {
+                p.classList.add('spotlight-dimmed');
+            }
+        });
+
+        // Build Lineage Breadcrumb Trail
+        updateLineageBreadcrumb(theory);
+
+        // Populate Inspector
+        populateInspector(theory);
+
+        // Update Minimap Viewport Indicator
+        updateMinimapIndicator();
+    }
+
+    // 4. Lineage Breadcrumbs Bar
+    function updateLineageBreadcrumb(theory) {
+        const container = document.getElementById('breadcrumb-pills-container');
+        container.innerHTML = '';
+
+        // Predecessors pills
+        (theory.predecessor_ids || []).forEach(pid => {
+            const pt = theoriesMap[pid];
+            if (!pt) return;
+            const btn = document.createElement('button');
+            btn.className = "px-2 py-0.5 rounded text-[11px] font-mono text-emerald-400 bg-slate-800 hover:bg-slate-700 border border-emerald-500/30 flex items-center gap-1 transition";
+            btn.innerHTML = `<span>${pt.short_name}</span> <span class="text-[9px] text-slate-500">(${pt.year})</span>`;
+            btn.onclick = () => { selectTheoryNode(pid); scrollToTheory(pid); };
+            container.appendChild(btn);
+
+            const arrow = document.createElement('span');
+            arrow.className = "text-slate-600 text-xs";
+            arrow.innerHTML = "&rarr;";
+            container.appendChild(arrow);
+        });
+
+        // Current Active Pill
+        const activePill = document.createElement('div');
+        activePill.className = "px-2.5 py-0.5 rounded text-[11px] font-bold font-mono text-white border flex items-center gap-1.5 shadow";
+        activePill.style.backgroundColor = `${theory.color}25`;
+        activePill.style.borderColor = theory.color;
+        activePill.innerHTML = `<span class="w-2 h-2 rounded-full" style="background:${theory.color}"></span> <span>${theory.name}</span> <span class="text-[10px] opacity-80">(${theory.year_display})</span>`;
+        container.appendChild(activePill);
+
+        // Successors pills
+        if (theory.successor_ids && theory.successor_ids.length > 0) {
+            const arrow = document.createElement('span');
+            arrow.className = "text-slate-600 text-xs";
+            arrow.innerHTML = "&rarr;";
+            container.appendChild(arrow);
+
+            theory.successor_ids.forEach((sid, idx) => {
+                const st = theoriesMap[sid];
+                if (!st) return;
+                const btn = document.createElement('button');
+                btn.className = "px-2 py-0.5 rounded text-[11px] font-mono text-purple-400 bg-slate-800 hover:bg-slate-700 border border-purple-500/30 flex items-center gap-1 transition";
+                btn.innerHTML = `<span>${st.short_name}</span> <span class="text-[9px] text-slate-500">(${st.year})</span>`;
+                btn.onclick = () => { selectTheoryNode(sid); scrollToTheory(sid); };
+                container.appendChild(btn);
+
+                if (idx < theory.successor_ids.length - 1) {
+                    const sep = document.createElement('span');
+                    sep.className = "text-slate-600 text-xs";
+                    sep.innerHTML = "/";
+                    container.appendChild(sep);
+                }
+            });
+        }
+
+        document.getElementById('active-lineage-stats').innerHTML =
+            `<strong class="text-emerald-400">${theory.predecessor_ids.length}</strong> Foundations &bull; <strong class="text-purple-400">${theory.successor_ids.length}</strong> Derivations`;
+    }
+
+    function resetHighlights() {
+        activeSelectedTheoryId = null;
+        document.querySelectorAll('.theory-card').forEach(c => {
+            c.classList.remove('highlight-target', 'highlight-ancestor', 'highlight-descendant', 'dimmed');
+        });
+        document.querySelectorAll('.connector-path').forEach(p => {
+            p.classList.remove('spotlight-active', 'spotlight-dimmed', 'flow-active');
+            p.setAttribute("stroke-opacity", isSpotlightMode ? "0.15" : "0.7");
+        });
+
+        document.getElementById('breadcrumb-pills-container').innerHTML = '<span class="text-slate-400 text-xs">All 8 Theories Active &bull; Click any card to isolate lineage</span>';
+        document.getElementById('active-lineage-stats').innerText = "";
+
+        filterEra(activeEraFilter);
+    }
+
+    // 5. Drag-to-Pan implementation
+    function setupDragToPan() {
+        const viewport = document.getElementById('chrono-viewport');
+        let isDown = false;
+        let startX, startY, scrollLeft, scrollTop;
+
+        viewport.addEventListener('mousedown', (e) => {
+            // Only pan when clicking canvas background or timeline, not cards or buttons
+            if (e.target.closest('.theory-card') || e.target.closest('button') || e.target.closest('input')) return;
+
+            isDown = true;
+            viewport.classList.add('grabbing');
+            startX = e.pageX - viewport.offsetLeft;
+            startY = e.pageY - viewport.offsetTop;
+            scrollLeft = viewport.scrollLeft;
+            scrollTop = viewport.scrollTop;
+        });
+
+        viewport.addEventListener('mouseleave', () => {
+            isDown = false;
+            viewport.classList.remove('grabbing');
+        });
+
+        viewport.addEventListener('mouseup', () => {
+            isDown = false;
+            viewport.classList.remove('grabbing');
+        });
+
+        viewport.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - viewport.offsetLeft;
+            const y = e.pageY - viewport.offsetTop;
+            const walkX = (x - startX) * 1.5;
+            const walkY = (y - startY) * 1.5;
+            viewport.scrollLeft = scrollLeft - walkX;
+            viewport.scrollTop = scrollTop - walkY;
+            updateMinimapIndicator();
+        });
+
+        viewport.addEventListener('scroll', () => {
+            updateMinimapIndicator();
+        });
+    }
+
+    // 6. Minimap Setup & Click Navigation
+    function setupMinimap() {
+        updateMinimapIndicator();
+    }
+
+    function updateMinimapIndicator() {
+        const viewport = document.getElementById('chrono-viewport');
+        const slider = document.getElementById('minimap-viewport-slider');
+        if (!viewport || !slider) return;
+
+        const scrollWidth = 3400 * currentZoom;
+        const visibleWidth = viewport.clientWidth;
+        const scrollLeft = viewport.scrollLeft;
+
+        const pctLeft = (scrollLeft / scrollWidth) * 100;
+        const pctWidth = Math.min(100, (visibleWidth / scrollWidth) * 100);
+
+        slider.style.left = `${pctLeft}%`;
+        slider.style.width = `${pctWidth}%`;
+    }
+
+    function handleMinimapClick(e) {
+        const track = document.getElementById('minimap-track');
+        const viewport = document.getElementById('chrono-viewport');
+        const rect = track.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const pct = clickX / rect.width;
+
+        const targetScrollLeft = pct * (3400 * currentZoom) - (viewport.clientWidth / 2);
+        viewport.scrollTo({ left: Math.max(0, targetScrollLeft), behavior: 'smooth' });
+    }
+
+    function scrollToTheory(theoryId) {
+        const pos = theoryPositions[theoryId];
+        const viewport = document.getElementById('chrono-viewport');
+        if (pos && viewport) {
+            const targetX = (pos.x * currentZoom) - (viewport.clientWidth / 2) + 165;
+            viewport.scrollTo({ left: Math.max(0, targetX), behavior: 'smooth' });
+        }
+    }
+
+    // 7. Zoom Controls
+    function adjustZoom(delta) {
+        currentZoom = Math.min(1.5, Math.max(0.6, currentZoom + delta));
+        applyZoom();
+    }
+
+    function resetZoom() {
+        currentZoom = 1.0;
+        applyZoom();
+    }
+
+    function applyZoom() {
+        const canvas = document.getElementById('chrono-canvas');
+        canvas.style.transform = `scale(${currentZoom})`;
+        document.getElementById('zoom-level-text').innerText = `${Math.round(currentZoom * 100)}%`;
+        updateMinimapIndicator();
+    }
+
+    // 8. View Mode Switcher: Horizontal vs Vertical
+    function switchViewMode(mode) {
+        activeViewMode = mode;
+        const horizView = document.getElementById('horizontal-timeline-view');
+        const vertView = document.getElementById('vertical-stepladder-view');
+        const hBtn = document.getElementById('view-mode-horizontal-btn');
+        const vBtn = document.getElementById('view-mode-vertical-btn');
+
+        if (mode === 'vertical') {
+            horizView.classList.add('hidden');
+            vertView.classList.remove('hidden');
+            vBtn.className = "px-2.5 py-1 rounded transition font-bold bg-purple-600 text-white flex items-center gap-1.5";
+            hBtn.className = "px-2.5 py-1 rounded transition text-slate-400 hover:text-white flex items-center gap-1.5";
+        } else {
+            vertView.classList.add('hidden');
+            horizView.classList.remove('hidden');
+            hBtn.className = "px-2.5 py-1 rounded transition font-bold bg-purple-600 text-white flex items-center gap-1.5";
+            vBtn.className = "px-2.5 py-1 rounded transition text-slate-400 hover:text-white flex items-center gap-1.5";
+            updateMinimapIndicator();
+        }
+    }
+
+    // 9. Spotlight Mode Toggle
+    function toggleSpotlightMode() {
+        isSpotlightMode = !isSpotlightMode;
+        const btn = document.getElementById('spotlight-btn');
+        const dot = document.getElementById('spotlight-dot');
+        const label = document.getElementById('spotlight-label');
+
+        if (isSpotlightMode) {
+            dot.className = "w-2 h-2 rounded-full bg-cyan-400";
+            label.innerText = "Spotlight: ON";
+            btn.className = "px-2.5 py-1 rounded-lg border border-slate-700 text-xs text-cyan-400 bg-slate-950 hover:bg-slate-800 flex items-center gap-1.5 transition";
+        } else {
+            dot.className = "w-2 h-2 rounded-full bg-slate-500";
+            label.innerText = "Spotlight: OFF";
+            btn.className = "px-2.5 py-1 rounded-lg border border-slate-700 text-xs text-slate-400 bg-slate-950 hover:bg-slate-800 flex items-center gap-1.5 transition";
+        }
+
+        if (activeSelectedTheoryId) {
+            selectTheoryNode(activeSelectedTheoryId);
+        } else {
+            resetHighlights();
+        }
+    }
+
+    // 10. Bridge Category Filtering
+    function filterBridgeCategory(category) {
+        activeBridgeCategory = category;
+        document.querySelectorAll('.bridge-filter-btn').forEach(b => {
+            b.className = "bridge-filter-btn px-2 py-0.5 rounded text-slate-400 hover:bg-slate-800 text-[10px]";
+        });
+        const activeBtn = document.getElementById(`bridge-filter-${category}`);
+        if (activeBtn) {
+            activeBtn.className = "bridge-filter-btn px-2 py-0.5 rounded bg-slate-800 text-white font-bold text-[10px]";
+        }
+
+        document.querySelectorAll('.connector-path').forEach(p => {
+            const rel = (p.getAttribute('data-relation') || '').toLowerCase();
+            let show = false;
+
+            if (category === 'all') show = true;
+            else if (category === 'canonical' && (rel.includes('quantization') || rel.includes('bracket'))) show = true;
+            else if (category === 'geometric' && (rel.includes('geometric') || rel.includes('curvature') || rel.includes('spacetime'))) show = true;
+            else if (category === 'gauge' && (rel.includes('gauge') || rel.includes('fiber') || rel.includes('bundle') || rel.includes('yang'))) show = true;
+            else if (category === 'foliation' && (rel.includes('foliation') || rel.includes('decoherence') || rel.includes('einselection'))) show = true;
+            else if (category === 'spaceflight' && (rel.includes('spaceflight') || rel.includes('thrust') || rel.includes('tether') || rel.includes('plasma'))) show = true;
+
+            p.style.display = show ? 'block' : 'none';
+        });
+    }
+
+    // 11. Quick Search Bar (Ctrl+K)
+    function handleQuickSearch(e) {
+        const query = e.target.value.toLowerCase().trim();
+        const clearBtn = document.getElementById('search-clear-btn');
+        clearBtn.classList.toggle('hidden', query.length === 0);
+
+        if (!query) {
+            resetHighlights();
+            return;
+        }
+
+        let firstMatch = null;
+        timelineData.theories.forEach(t => {
+            const card = document.getElementById('card-' + t.id);
+            const textMatch = t.name.toLowerCase().includes(query) ||
+                              t.authors.toLowerCase().includes(query) ||
+                              t.year_display.toLowerCase().includes(query) ||
+                              t.badge.toLowerCase().includes(query) ||
+                              t.code.toLowerCase().includes(query);
+
+            if (textMatch) {
+                if (!firstMatch) firstMatch = t.id;
+                card.classList.remove('dimmed');
+                card.style.display = 'block';
             } else {
                 card.classList.add('dimmed');
             }
         });
 
-        // Filter connector paths
-        allPaths.forEach(p => {
-            const src = p.getAttribute('data-source');
-            const tgt = p.getAttribute('data-target');
-            p.classList.remove('dimmed');
+        if (firstMatch && e.key === 'Enter') {
+            selectTheoryNode(firstMatch);
+            scrollToTheory(firstMatch);
+        }
+    }
 
-            const isDirectEdge = (src === theoryId || tgt === theoryId);
-            if (!isDirectEdge) {
-                p.classList.add('dimmed');
+    function clearSearch() {
+        const input = document.getElementById('theory-search-input');
+        input.value = '';
+        document.getElementById('search-clear-btn').classList.add('hidden');
+        resetHighlights();
+    }
+
+    function setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                const search = document.getElementById('theory-search-input');
+                search.focus();
+                search.select();
+            } else if (e.key === 'Escape') {
+                closeInspector();
+                document.getElementById('synthesizer-panel').classList.add('hidden');
+                closeBridgeModal();
             }
         });
-
-        // Populate Inspector Drawer
-        populateInspector(theory);
     }
 
-    function resetHighlights() {
-        activeSelectedTheoryId = null;
-        document.getElementById('active-selection-label').innerText = "Showing All 8 Theories";
-
-        document.querySelectorAll('.theory-card').forEach(c => {
-            c.classList.remove('highlight-target', 'highlight-ancestor', 'highlight-descendant', 'dimmed');
-        });
-        document.querySelectorAll('.connector-path').forEach(p => {
-            p.classList.remove('dimmed');
-        });
-
-        filterEra(activeEraFilter);
-    }
-
-    // 4. Populate Inspector Drawer
+    // 12. Inspector Drawer Population
     function populateInspector(theory) {
         document.getElementById('inspector-placeholder').classList.add('hidden');
         document.getElementById('inspector-active-data').classList.remove('hidden');
 
+        document.getElementById('inspect-header-dot').style.backgroundColor = theory.color;
         document.getElementById('inspect-code').innerText = theory.code;
         document.getElementById('inspect-code').style.color = theory.color;
         document.getElementById('inspect-year').innerText = theory.year_display;
@@ -680,11 +1112,9 @@
         document.getElementById('inspect-authors').innerText = theory.authors;
         document.getElementById('inspect-premise').innerText = theory.premise;
 
-        // LaTeX Formula
         const formulaContainer = document.getElementById('inspect-formula');
         formulaContainer.innerHTML = `$$${theory.core_formula}$$`;
 
-        // Symmetries
         const symList = document.getElementById('inspect-symmetries');
         symList.innerHTML = '';
         (theory.symmetries || []).slice(0, 3).forEach(s => {
@@ -694,7 +1124,6 @@
             symList.appendChild(li);
         });
 
-        // Invariants
         const invList = document.getElementById('inspect-invariants');
         invList.innerHTML = '';
         (theory.invariants || []).slice(0, 3).forEach(i => {
@@ -704,7 +1133,6 @@
             invList.appendChild(li);
         });
 
-        // Ancestors
         const ancList = document.getElementById('inspect-ancestors-list');
         ancList.innerHTML = '';
         if (theory.predecessor_ids && theory.predecessor_ids.length > 0) {
@@ -714,14 +1142,13 @@
                 const btn = document.createElement('button');
                 btn.className = "px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-emerald-400 border border-emerald-500/30 transition";
                 btn.innerText = `&larr; ${pt.short_name}`;
-                btn.onclick = () => selectTheoryNode(pid);
+                btn.onclick = () => { selectTheoryNode(pid); scrollToTheory(pid); };
                 ancList.appendChild(btn);
             });
         } else {
             ancList.innerHTML = '<span class="text-slate-500 text-[10px] italic">Foundational Axiom (None)</span>';
         }
 
-        // Descendants
         const descList = document.getElementById('inspect-successors-list');
         descList.innerHTML = '';
         if (theory.successor_ids && theory.successor_ids.length > 0) {
@@ -731,17 +1158,15 @@
                 const btn = document.createElement('button');
                 btn.className = "px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-purple-400 border border-purple-500/30 transition";
                 btn.innerText = `${st.short_name} &rarr;`;
-                btn.onclick = () => selectTheoryNode(sid);
+                btn.onclick = () => { selectTheoryNode(sid); scrollToTheory(sid); };
                 descList.appendChild(btn);
             });
         } else {
             descList.innerHTML = '<span class="text-slate-500 text-[10px] italic">Terminal Frontier Node</span>';
         }
 
-        // Link to Theory Library
         document.getElementById('inspect-link-btn').href = `/theories/${theory.id}/`;
 
-        // Trigger MathJax re-render
         if (window.MathJax && window.MathJax.typesetPromise) {
             window.MathJax.typesetPromise([formulaContainer]);
         }
@@ -752,7 +1177,7 @@
         document.getElementById('inspector-active-data').classList.add('hidden');
     }
 
-    // 5. Open Mathematical Bridge Modal
+    // 13. Mathematical Bridge Modal
     function openBridgeModal(edge) {
         const modal = document.getElementById('bridge-modal');
         const src = theoriesMap[edge.source] || { name: edge.source };
@@ -765,7 +1190,6 @@
 
         const fContainer = document.getElementById('bridge-formula-container');
         fContainer.innerHTML = `$$${edge.formula}$$`;
-
         document.getElementById('bridge-badge-color').style.backgroundColor = edge.color || '#38bdf8';
 
         modal.classList.remove('hidden');
@@ -779,17 +1203,15 @@
         document.getElementById('bridge-modal').classList.add('hidden');
     }
 
-    // 6. Era Filter
+    // 14. Era Filter Handler
     function filterEra(eraId) {
         activeEraFilter = eraId;
         document.querySelectorAll('.era-btn').forEach(b => {
-            b.classList.remove('bg-purple-600', 'text-white', 'font-bold');
-            b.classList.add('text-slate-400');
+            b.className = "era-btn px-2.5 py-0.5 rounded text-[11px] transition font-medium text-slate-400 hover:text-white hover:bg-slate-800/80";
         });
         const activeBtn = document.getElementById('era-btn-' + eraId);
         if (activeBtn) {
-            activeBtn.classList.add('bg-purple-600', 'text-white', 'font-bold');
-            activeBtn.classList.remove('text-slate-400');
+            activeBtn.className = "era-btn px-2.5 py-0.5 rounded text-[11px] transition font-bold bg-purple-600/80 text-white";
         }
 
         document.querySelectorAll('.theory-card').forEach(card => {
@@ -802,13 +1224,7 @@
         });
     }
 
-    // 7. Center view on Modern/Spaceflight Era
-    function centerTimeline() {
-        const viewport = document.getElementById('chrono-viewport');
-        viewport.scrollTo({ left: 1800, behavior: 'smooth' });
-    }
-
-    // 8. Trajectory Synthesizer Toggle & Handler
+    // 15. Trajectory Synthesizer Toggle & Handler
     function toggleSynthesizerDrawer() {
         const panel = document.getElementById('synthesizer-panel');
         panel.classList.toggle('hidden');
@@ -836,7 +1252,7 @@
             }
         } catch (err) {
             console.error("Trajectory synthesis error:", err);
-            form.submit(); // fallback to standard POST
+            form.submit();
         }
     }
 
@@ -850,13 +1266,12 @@
 
         document.getElementById('projected-title').innerText = proj.name;
         document.getElementById('projected-year-badge').innerText = proj.year_display;
-        document.getElementById('projected-parents-desc').innerText = `Bridging: ${proj.parent_names.join(' + ')}`;
+        document.getElementById('projected-parents-desc').innerText = `Coupled: ${proj.parent_names.join(' + ')}`;
         document.getElementById('projected-score-val').innerText = `${proj.score}%`;
 
         const fContainer = document.getElementById('projected-formula-preview');
         fContainer.innerHTML = `$$${proj.formula}$$`;
 
-        // Render synthetic dashed curves from parents to projected node
         const futureGroup = document.getElementById('svg-future-paths-group');
         futureGroup.innerHTML = '';
 
@@ -871,7 +1286,7 @@
 
             const pathD = `M ${x1} ${y1} C ${x1 + 100} ${y1}, ${x2 - 100} ${y2}, ${x2} ${y2}`;
             const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            path.setAttribute("class", "connector-path flow-connector");
+            path.setAttribute("class", "connector-path flow-active");
             path.setAttribute("d", pathD);
             path.setAttribute("stroke", "#f43f5e");
             path.setAttribute("stroke-width", "3");
@@ -886,7 +1301,6 @@
             window.MathJax.typesetPromise([fContainer]);
         }
 
-        // Scroll to projected node
         const viewport = document.getElementById('chrono-viewport');
         viewport.scrollTo({ left: 2600, behavior: 'smooth' });
     }
