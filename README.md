@@ -137,23 +137,4 @@ The vector schematics and interactive diagrams can be regenerated at any time us
 ./venv/bin/python test_scripts/assemble_poc.py
 ```
 
----
 
-## GitHub Deployment & SSH Keys
-
-This project uses dedicated SSH deploy keys. To push to GitHub:
-
-1. Ensure the key `~/.ssh/id_ed25519_science_calculator` is registered under your repository's **Settings > Deploy keys** with **Allow write access** enabled.
-2. Ensure your `~/.ssh/config` has the alias:
-   ```ssh-config
-   Host github-scicalc
-       HostName github.com
-       User git
-       IdentityFile ~/.ssh/id_ed25519_science_calculator
-       IdentitiesOnly yes
-   ```
-3. Push via:
-   ```bash
-   git remote add origin git@github-scicalc:Alednam/StarTravel_POC.git
-   git push -u origin main
-   ```
